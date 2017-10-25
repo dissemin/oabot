@@ -1,61 +1,66 @@
 <!doctype html>
 <html>
-    <head>
-        <title>OAbot</title>
-        <link rel="stylesheet" href="{{ url_for('send_css', path='style.css') }}" />
-        <link rel="stylesheet" href="{{ url_for('send_css', path='bootstrap.min.css') }}" />
-    </head>
-    <body>
-        <p class="loginsection">{% if username %}
-	    Logged in as <a href="https://en.wikipedia.org/wiki/User:{{ username }}">{{ username }}</a>
-	(<a href="{{ url_for('logout') }}">logout</a>).{% endif %}</p>
 
-        <A HREF="http://www.oabot.org"><img src="css/oabot_orange_text_above.svg" alt="OAbot" WIDTH="100px" HEIGHT="100px"></A>
+<head>
+    <title>OAbot</title>
+    <link rel="stylesheet" href="{{ url_for('send_css', path='style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('send_css', path='bootstrap.min.css') }}" />
+</head>
 
-        {% if success == 'true' %}
-        <div class="success">
-            Edit successfully performed
-        </div>
-        {% elif success == 'nothing' %}
-        <div class="success">
-            No edit was made
-        </div>
-        {% endif %}
+<body>
+    {% if username %}
+    <p class="loginsection">
+        Logged in as <a href="https://en.wikipedia.org/wiki/User:{{ username }}">{{ username }}</a>
+        (<a href="{{ url_for('logout') }}">logout</a>).
+    </p>
+    {% endif %}
+
+    <a id="logo" href="http://www.oabot.org">
+        <img src="css/oabot_orange_text_above.svg" alt="OAbot" width="100px" height="100px">
+    </a>
+
+    {% if success == 'true' %}
+    <div class="success">
+        Edit successfully performed
+    </div>
+    {% elif success == 'nothing' %}
+    <div class="success">
+        No edit was made
+    </div>
+    {% endif %}
+    <br />
+
+    <p id="description">
+        We think we've found an open access version of an article cited on Wikipedia!
         <br />
+        Can you review our guess and edit Wikipedia to include a link to it?
+        <br />
+        <br />
+    </p>
 
-        <p id="description">
-        We think we've found an open access version of an article cited on Wikipedia! 
-	<br />
-	Can you review our guess and edit Wikipedia to include a link to it?
-	<br /><br />
-        </p>
-
-        <div class="startbutton">
+    <div class="startbutton">
         <form action="{{ url_for('get_random_edit') }}">
             <input type="submit" class="btn btn-success" value="{% if username %}Start editing a random page!{% else %}Log in{% endif %}" />
         </form>
-        </div>
-        <br />
-
-        <br />
-	
-        <br /><br />
-
- 	<p><center>
-	<a href="https://en.wikipedia.org/w/index.php?title=Special:RecentChanges&tagfilter=OAuth+CID:+817">
-	 Recent edits made with OAbot</a> - 
+    </div>
+    <br />
+    <br />
+    <br />
+    <br />
+    <p class="center">
+        <a href="https://en.wikipedia.org/w/index.php?title=Special:RecentChanges&amp;tagfilter=OAuth+CID:+817">Recent edits made with OAbot</a> -
         <a href="{{ url_for('stats') }}">Leaderboard</a>
-        </center>
-	</p>
-   
-	<p><center><a href="https://github.com/dissemin/oabot">Code on GitHub</a> - 
-	   	 <a href="https://phabricator.wikimedia.org/maniphest/task/edit/form/1/?projects=OABot">Bugs on Phabricator</a> - 
-           	<a href="https://en.wikipedia.org/wiki/User_talk:Pintoch">Run by Pintoch</a> - 
-           	<a href="https://association.dissem.in/index.html.en">A CAPSH project</a> -
-		<a href="https://tools.wmflabs.org/">Hosted on WMF Toolforge</a> -
-                Logo CC-BY-SA <a href="http://dougdworkin.com/">Doug Dworkin</a></center>
-	</p>
-	    
-    </body>
-</html>
+    </p>
 
+    <p class="center">
+        <a href="https://github.com/dissemin/oabot">Code on GitHub</a> -
+        <a href="https://phabricator.wikimedia.org/maniphest/task/edit/form/1/?projects=OABot">Bugs on Phabricator</a> -
+        <a href="https://en.wikipedia.org/wiki/User_talk:Pintoch">Run by Pintoch</a> -
+        <a href="https://association.dissem.in/index.html.en">A CAPSH project</a> -
+        <a href="https://tools.wmflabs.org/">Hosted on WMF Toolforge</a> -
+        Logo CC-BY-SA <a href="http://dougdworkin.com/">Doug Dworkin</a>
+    </p>
+
+</body>
+
+</html>

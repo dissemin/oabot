@@ -68,6 +68,9 @@ body {
     padding-left: 50px;
     padding-top: 10px;
 }
+.center {
+    text-align: center;
+}
 #logo {
     display: block;
     margin: 0 auto;
