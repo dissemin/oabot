@@ -216,10 +216,23 @@ def get_oa_link(reference):
     # then, try OAdoi
     # (OAdoi finds full texts that dissemin does not, so it's always good to have!)
     if doi:
-        email = '{}@{}.in'.format('contact', 'dissem')
-        req = requests.get('https://api.oadoi.org/v2/:{}'.format(doi), {'email':email})
-        print(req.url)
-        resp = req.json()
+        resp = None
+        attempts = 0
+        while resp is None:
+            email = '{}@{}.in'.format('contact', 'dissem')
+            try:
+                req = requests.get('https://api.oadoi.org/v2/:{}'.format(doi), {'email':email})
+                print(req.url)
+                resp = req.json()
+            except ValueError:
+                from time import sleep
+                sleep(10)
+                attempts += 1
+                if attempts >= 3:
+                    return None
+                else:
+                    continue
+
         best_oa = (resp.get('best_oa_location') or {})
         if best_oa.get('host_type') == 'publisher':
             return None

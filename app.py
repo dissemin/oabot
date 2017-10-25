@@ -237,8 +237,6 @@ def make_new_wikicode(text, form_data, page_name):
             continue
         proposed_addition = form_data.get(edit.orig_hash)
         user_checked = form_data.get(edit.orig_hash+'-addlink')
-        print('user_checked')
-        print(user_checked)
         if proposed_addition and user_checked == 'checked':
             try:
                 edit.update_template(proposed_addition)
