@@ -46,6 +46,11 @@ import urllib3.contrib.pyopenssl
 urllib3.disable_warnings()
 urllib3.contrib.pyopenssl.inject_into_urllib3()
 
+import sys
+if sys.version_info.major < 3:
+    reload(sys)
+sys.setdefaultencoding('utf8')
+
 app = flask.Flask(__name__)
 
 __dir__ = os.path.dirname(__file__)

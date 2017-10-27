@@ -22,7 +22,7 @@
           </tr>
          {% for record in leaderboard %}
           <tr>
-              <td><a href="https://en.wikipedia.org/wiki/User:{{ record.user_name }}">{{ record.user_name }}</a></td>
+              <td><a href="https://en.wikipedia.org/wiki/User:{{ record.unicode_name() }}">{{ record.unicode_name() }}</a></td>
               <td>{{ record.nb_edits }}</td>
           </tr>
           {% endfor %}

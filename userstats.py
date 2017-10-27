@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Sequence
@@ -77,6 +79,15 @@ class UserStats(Base):
         if not instance:
             instance = cls(wiki=wiki, user_name=user, nb_edits=0, nb_links=0)
         return instance
+
+    def unicode_name(self):
+        if type(self.user_name) == str:
+            try:
+                return self.user_name.decode('ascii')
+            except UnicodeDecodeError as e:
+                return "user"
+        else:
+            return self.user_name
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
