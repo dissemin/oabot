@@ -53,9 +53,9 @@
         <h3>Actions</h3>
         <p>
         <span class="btn-group">
-            <input type="button" onclick="window.location.href='{{ url_for('get_random_edit') }}'" class="btn btn-danger" value="Skip" />
-            <input type="button" onclick="preview()" value="Preview" class="btn btn-default" />
-            <input class="btn btn-success" type="submit" value="Add link" />
+            <input type="button" accesskey="1" onclick="window.location.href='{{ url_for('get_random_edit') }}'" class="btn btn-danger" value="Skip" />
+            <input type="button" accesskey="2" onclick="preview()" value="Preview" class="btn btn-default" />
+            <input class="btn btn-success" accesskey="3" type="submit" value="Add link" />
         </span>
          with summary <input class="form-control" style="max-width:500px; display: inline" type="text" size="80" name="summary" value="Added free to read links in citations with [[WP:OABOT|OAbot]] #oabot" /></p>
         </form>
