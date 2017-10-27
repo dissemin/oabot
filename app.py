@@ -410,6 +410,10 @@ def send_js(path):
 	with open('exception', 'w') as f:
 	    f.write(str(type(e))+' '+str(e))
 
+@app.route('/redirect-to-url')
+def redirect_to_url():
+    return flask.redirect(flask.request.args.get('url'))
+    
 
 @app.route('/edits/<path:path>')
 def send_edits(path):
