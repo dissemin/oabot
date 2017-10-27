@@ -150,6 +150,10 @@ class TemplateEdit(object):
             raise ValueError('invalid change')
         param = bits[0].lower().strip()
         value = bits[1].strip()
+        
+        # Escape various characters in Wikicode
+        value = value.replace(' ', '%20')
+        value = value.replace('|', '{{!}}')
         self.template.add(param, value)
 
 def remove_diacritics(s):
@@ -304,6 +308,7 @@ def get_page_over_api(page_name):
         'rvprop':'content',
         'format':'json',},
         headers={'User-Agent':OABOT_USER_AGENT})
+    r.raise_for_status()
     js = r.json()
     page = js.get('query',{}).get('pages',{}).values()[0]
     pagid = page.get('pageid', -1)
