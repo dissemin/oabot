@@ -107,7 +107,7 @@ def edit_wiki_page(page_name, content, summary=None):
     }, auth=auth)
     r.raise_for_status()
     token = r.json()['query']['tokens']['csrftoken']
-    
+
     r = requests.post('https://en.wikipedia.org/w/api.php', data={
 	'action':'edit',
         'title': page_name,
@@ -118,7 +118,7 @@ def edit_wiki_page(page_name, content, summary=None):
         'watchlist': 'nochange',
     }, auth=auth)
     r.raise_for_status()
-	
+
 
 @app.route('/process')
 def process():
@@ -207,7 +207,7 @@ def get_proposed_edits(page_name, force, follow_redirects=True):
     if not force and os.path.isfile(cache_fname):
         with open(cache_fname, 'r') as f:
             return json.load(f)
-    
+
     # Otherwise, process it
     all_templates = main.add_oa_links_in_references(text, page_name)
     filtered = list(filter(lambda e: e.proposed_change, all_templates))
@@ -223,7 +223,7 @@ def get_proposed_edits(page_name, force, follow_redirects=True):
             json.dump(context, f)
     elif os.path.isfile(cache_fname):
         os.remove(cache_fname)
-    
+
     return context
 
 def get_one_proposed_edit(page_name, edit_hash):
@@ -266,10 +266,10 @@ def perform_edit():
     summary = data.get('summary')
     if not summary:
         raise InvalidUsage('No summary provided')
-        
+
     # Get the page
     text = main.get_page_over_api(page_name)
-    
+
     # Perform each edit
     new_text, change_made = make_new_wikicode(text, data, page_name)
 
@@ -312,16 +312,16 @@ def preview_edit():
     summary = data.get('summary')
     if not summary:
         raise InvalidUsage('No summary provided')
-        
+
     # Get the page
     text = main.get_page_over_api(page_name)
-    
+
     # Perform each edit
     new_text, change_made = make_new_wikicode(text, data, page_name)
 
     diff = make_diff(text, new_text)
     return '<div class="diffcontainer">'+diff+'</div>'
-    
+
 @app.route('/stats')
 def stats():
     leaderboard = list(UserStats.get_leaderboard())
@@ -412,8 +412,8 @@ def send_js(path):
 
 @app.route('/redirect-to-url')
 def redirect_to_url():
-    return flask.redirect(flask.request.args.get('url'))
-    
+    context = {'url':flask.request.args.get('url')}
+    return flask.render_template("redirect.html", **context)
 
 @app.route('/edits/<path:path>')
 def send_edits(path):
