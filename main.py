@@ -48,6 +48,9 @@ class TemplateEdit(object):
         self.index = None
         self.page = page
 
+    def is_https(self):
+        return self.proposed_link and self.proposed_link.startswith('https')
+
     def json(self):
         return {
             'orig_string': self.orig_string,

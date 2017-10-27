@@ -73,9 +73,13 @@
         </div>
 
         <h3>URL preview</h3>
+        {% if proposed_edit.is_https %}
         <div id="preview-target">
         <iframe width="400" height="300" src="{{ proposed_edit.proposed_link }}"></iframe>
         </div>
+        {% else %}
+        <iframe width="400" height="300" src="https://www.google.com/search?btnI=Im+Feeling+Lucky&q={{ proposed_edit.proposed_link|urlencode }}"></iframe>
+        {% endif %}
 
         {% else %}
         <p>No edit proposed for this page.</p>
