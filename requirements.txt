@@ -1,6 +1,7 @@
 wikiciteparser
 pywikibot
 requests
+dbconfig
 docopt
 unidecode
 subprocess32
