@@ -1,0 +1,4 @@
+SECRET_KEY: $(python -c "import os; print repr(os.urandom(24))")
+OAUTH_MWURI: https://meta.wikimedia.org/w/index.php
+CONSUMER_KEY: the 'consumer token' value from your OAuth consumer registration
+CONSUMER_SECRET: the 'secret token' value from your OAuth consumer registration
