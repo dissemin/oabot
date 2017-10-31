@@ -22,10 +22,11 @@ excluded_templates = ['cite arxiv', 'cite web', 'cite news', 'cite book']
 #
 # Ask for an API key at  dev @ dissem . in
 #
-ZOTERO_CACHE_API_KEY = open('zotero_cache_key.txt','r').read().strip()
-if not ZOTERO_CACHE_API_KEY:
-    raise ValueError('Please provide a Zotero cache API key '+
-                    '(email dev @ dissem . in to get one.)')
+try:
+	ZOTERO_CACHE_API_KEY = open('zotero_cache_key.txt','r').read().strip()
+except IOError:
+	print('Please provide a Zotero cache API key '+
+          '(email dev @ dissem . in to get one)')
 
 
 
