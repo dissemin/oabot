@@ -1,8 +1,18 @@
+# -*- coding: utf-8 -*-
+
 from sqlalchemy import create_engine
+
 import configparser
 import os
 
-config = configparser.ConfigParser()
-config.read(os.path.expanduser("~/replica.my.cnf"))
-url = 'mysql://{0}:{1}@{2}/{0}__oabot'.format(config['client']['user'], config['client']['password'], 'tools.labsdb')
-engine = create_engine(url, echo=False)
+_config = configparser.ConfigParser()
+_config.read(os.path.expanduser("~/replica.my.cnf"))
+_url = 'mysql://{0}:{1}@{2}/{0}__oabot'.format(_config['client']['user'],
+                                               _config['client']['password'],
+                                               'tools.labsdb'
+                                               )
+
+
+def get_engine():
+    engine = create_engine(_url, echo=False)
+    return engine
