@@ -183,8 +183,6 @@ def get_oa_link(reference):
         'date':date,
         'doi':doi,
         }
-    print('args')
-    print(args)
 
     # first, try dissemin
     # (rationale: dissemin returns links that are easier
@@ -244,7 +242,14 @@ def get_oa_link(reference):
         if best_oa.get('host_type') == 'publisher':
             return None
         if best_oa.get('url'):
-            return best_oa['url']
+            # try to HEAD the url just to check it's still there
+            try:
+                url = best_oa['url']
+                head = requests.head(url)
+                head.raise_for_status()
+                return url
+            except requests.exceptions.RequestException:
+                return None
 
 @urls_cache.cached
 def check_free_to_read(url):
