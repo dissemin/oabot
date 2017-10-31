@@ -66,6 +66,7 @@ li pre {
 body {
     font-family: "Trebuchet MS", sans-serif;
     padding-left: 50px;
+    padding-right: 50px;
     padding-top: 10px;
 }
 .center {
@@ -84,6 +85,8 @@ body {
     background-color: #77DD77;
     padding: 5px;
     border: 1px solid #888;
+    text-align: center;
+    margin-top: 20px;
 }
 .edit {
     background-color: rgb(245, 95, 95);
