@@ -90,6 +90,9 @@ class UserStats(Base):
             return self.user_name
 
 if __name__ == '__main__':
+
+    engine = get_engine()
+
     Base.metadata.create_all(engine)
     dct = {
     'Zuphilip': 1,
