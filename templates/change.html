@@ -49,7 +49,7 @@
             <div class="wiki">{{ template_edit.orig_string|wikirender }}</div>
             <p>
                 <input type="checkbox" name="{{ template_edit.orig_hash }}-addlink" value="checked" checked />
-                <span class="addlink">Add link: <a href="{{ template_edit.proposed_link }}" target="_blank">{{ template_edit.proposed_link }}</a></span></p>
+                <span class="addlink">Proposed link: <a href="{{ template_edit.proposed_link }}" target="_blank">{{ template_edit.proposed_link }}</a></span></p>
             <input type="hidden" size="100" name="{{ template_edit.orig_hash }}" value="{{ template_edit.proposed_change }}" />
             </li>
         {% endfor %}
