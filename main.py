@@ -227,7 +227,6 @@ def get_oa_link(reference):
             email = '{}@{}.in'.format('contact', 'dissem')
             try:
                 req = requests.get('https://api.oadoi.org/v2/:{}'.format(doi), {'email':email})
-                print(req.url)
                 resp = req.json()
             except ValueError:
                 from time import sleep
