@@ -399,16 +399,24 @@ def send_css(path):
     try:
 	    return flask.send_from_directory('css', path)
     except Exception as e:
-	with open('exception', 'w') as f:
-	    f.write(str(type(e))+' '+str(e))
+	   with open('exception', 'w') as f:
+	       f.write(str(type(e))+' '+str(e))
 
 @app.route('/js/<path:path>')
 def send_js(path):
     try:
 	    return flask.send_from_directory('js', path)
     except Exception as e:
-	with open('exception', 'w') as f:
-	    f.write(str(type(e))+' '+str(e))
+	   with open('exception', 'w') as f:
+	       f.write(str(type(e))+' '+str(e))
+
+@app.route('/static/<path:path>')
+def send_static(path):
+     try:
+         return flask.send_from_directory('static', path)
+     except Exception as e:
+        with open('exception', 'w') as f:
+            f.write(str(type(e))+' '+str(e))
 
 @app.route('/redirect-to-url')
 def redirect_to_url():
