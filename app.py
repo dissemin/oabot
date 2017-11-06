@@ -328,7 +328,7 @@ def stats():
     total_edits = sum(rec.nb_edits for rec in leaderboard)
     context = {
         'username' : flask.session.get('username', None),
-        'leaderboard': UserStats.get_leaderboard(),
+        'enumerated_leaderboard': enumerate(UserStats.get_leaderboard()),
         'total_edits': total_edits,
     }
     return flask.render_template("stats.html", **context)

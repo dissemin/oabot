@@ -15,13 +15,15 @@
 
         <p>Total number of edits made with OAbot: {{ total_edits }}</p>
 
-        <table>
+        <table class="edit-stats">
           <tr>
+              <th>#&nbsp;</th>
               <th>User</th>
               <th>Number of edits</th>
           </tr>
-         {% for record in leaderboard %}
+         {% for idx, record in enumerated_leaderboard %}
           <tr>
+              <td>{{ idx+1 }}</td>
               <td><a href="https://en.wikipedia.org/wiki/User:{{ record.unicode_name() }}">{{ record.unicode_name() }}</a></td>
               <td>{{ record.nb_edits }}</td>
           </tr>

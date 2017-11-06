@@ -15,6 +15,7 @@ td {
 }
 table.edit-stats td {
     width: auto;
+    padding-left: 10px;
 }
 colgroup {
     border: 1px solid #BBB;
