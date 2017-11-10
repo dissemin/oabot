@@ -3,9 +3,9 @@
     <head>
         <title>OAbot: {{ page_name }}</title>
         <link rel="shortcut icon" href="{{ url_for('send_static', path='favicon.ico') }}">
-        <link rel="stylesheet" href="{{ url_for('send_css', path='style.css') }}" />
-        <link rel="stylesheet" href="{{ url_for('send_css', path='bootstrap.min.css') }}" />
-        <script src="{{ url_for('send_js', path='jquery-1.11.3.min.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('send_static', path='css/style.css') }}" />
+        <link rel="stylesheet" href="{{ url_for('send_static', path='css/bootstrap.min.css') }}" />
+        <script src="{{ url_for('send_static', path='js/jquery-1.11.3.min.js') }}"></script>
     </head>
     <body>
 
@@ -14,7 +14,7 @@
 	(<a href="{{ url_for('logout') }}">logout</a>).{% if nb_edits %}<br/>
             <a href="{{ url_for('stats') }}">{{ nb_edits }} edits</a> made, thanks!{% endif %}{% endif %}</p>
 
-        <A HREF="http://www.oabot.org"><img src="css/oabot_orange_text_above.svg" alt="OAbot" WIDTH="100px" HEIGHT="100px"></A>
+        <A HREF="http://www.oabot.org"><img src="{{ url_for('send_static', path='oabot_orange_text_above.svg') }}" alt="OAbot" width="100px" height="100px"></A>
         <br/>
         <div class="row">
             <form action="{{ url_for('process') }}" method="get">

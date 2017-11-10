@@ -1,0 +1,4 @@
+# ignore temporary files created during development
+exception
+urls_cache.pkl
+
