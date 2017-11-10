@@ -22,8 +22,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import flask
 import os
+import flask
 import yaml
 import mwoauth
 import requests
@@ -36,10 +36,11 @@ import jinja2
 from random import randint
 from requests_oauthlib import OAuth1
 import mwparserfromhell
-import main
 from difflib import HtmlDiff
-import wikirender
-from userstats import UserStats
+
+from oabot import main
+from oabot import wikirender
+from oabot.userstats import UserStats
 
 import urllib3
 import urllib3.contrib.pyopenssl
@@ -51,11 +52,13 @@ if sys.version_info.major < 3:
     reload(sys)
 sys.setdefaultencoding('utf8')
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__,
+                  static_folder=os.path.join('oabot', 'static'))
+app.jinja_loader = jinja2.FileSystemLoader(os.path.join('oabot', 'templates'))
 
 __dir__ = os.path.dirname(__file__)
 app.config.update(
-    yaml.safe_load(open(os.path.join(__dir__, 'config.yaml'))))
+    yaml.safe_load(open(os.path.join(__dir__, 'oabot', 'config', 'config.yaml'))))
 
 app.jinja_env.filters['wikirender'] = wikirender.wikirender
 
@@ -94,24 +97,24 @@ def index():
 def edit_wiki_page(page_name, content, summary=None):
     access_token = flask.session.get('access_token', None)
     auth = OAuth1(
-		app.config['CONSUMER_KEY'],
-		app.config['CONSUMER_SECRET'],
-		access_token['key'],
-		access_token['secret'])
+        app.config['CONSUMER_KEY'],
+        app.config['CONSUMER_SECRET'],
+        access_token['key'],
+        access_token['secret'])
 
     # Get token
     r = requests.get('https://en.wikipedia.org/w/api.php', params={
-	'action':'query',
-	'meta':'tokens',
+    'action':'query',
+    'meta':'tokens',
         'format': 'json',
     }, auth=auth)
     r.raise_for_status()
     token = r.json()['query']['tokens']['csrftoken']
 
     r = requests.post('https://en.wikipedia.org/w/api.php', data={
-	'action':'edit',
+    'action':'edit',
         'title': page_name,
-	'text': content,
+    'text': content,
         'summary': summary,
         'format': 'json',
         'token': token,
@@ -212,8 +215,8 @@ def get_proposed_edits(page_name, force, follow_redirects=True):
     all_templates = main.add_oa_links_in_references(text, page_name)
     filtered = list(filter(lambda e: e.proposed_change, all_templates))
     context = {
-	'proposed_edits': [change.json() for change in filtered],
-	'page_name' : page_name,
+    'proposed_edits': [change.json() for change in filtered],
+    'page_name' : page_name,
         'utcnow': unicode(datetime.datetime.utcnow()),
     }
 
@@ -394,29 +397,16 @@ def logout():
     flask.session.clear()
     return flask.redirect(flask.url_for('index'))
 
-@app.route('/css/<path:path>')
-def send_css(path):
-    try:
-	    return flask.send_from_directory('css', path)
-    except Exception as e:
-	   with open('exception', 'w') as f:
-	       f.write(str(type(e))+' '+str(e))
-
-@app.route('/js/<path:path>')
-def send_js(path):
-    try:
-	    return flask.send_from_directory('js', path)
-    except Exception as e:
-	   with open('exception', 'w') as f:
-	       f.write(str(type(e))+' '+str(e))
-
 @app.route('/static/<path:path>')
 def send_static(path):
+     print("path: {}".format(path))
      try:
          return flask.send_from_directory('static', path)
      except Exception as e:
+        print("path: {}".format(path))
         with open('exception', 'w') as f:
             f.write(str(type(e))+' '+str(e))
+        return 
 
 @app.route('/redirect-to-url')
 def redirect_to_url():

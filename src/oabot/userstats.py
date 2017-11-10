@@ -4,7 +4,7 @@ import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Sequence
 from sqlalchemy.orm import sessionmaker
-from dbconfig import get_engine
+from .dbconfig import get_engine
 import requests
 
 Base = declarative_base()
