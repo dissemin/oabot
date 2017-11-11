@@ -209,14 +209,12 @@ def get_oa_link(reference):
 
     oa_url = None
     candidate_urls = sort_links([
-        record.get('splash_url') for record in
+        record.get('pdf_url') for record in
         paper_object.get('records',[])
     ])
     for url in sort_links(candidate_urls):
-        is_free = check_free_to_read(url)
-        if is_free:
-            # If we found a free URL, we are happy!
-	    return url
+        if url:
+            return url
 
     # then, try OAdoi
     # (OAdoi finds full texts that dissemin does not, so it's always good to have!)
@@ -249,47 +247,6 @@ def get_oa_link(reference):
                 return url
             except requests.exceptions.RequestException:
                 return None
-
-@urls_cache.cached
-def check_free_to_read(url):
-    """
-    Checks (with Zotero translators and CiteSeerX
-    paper filters) that a given URL is free to read
-    """
-    try:
-            r = requests.post('http://doi-cache.dissem.in/zotero/query',
-                        data={
-                    'url':url,
-                    'key':ZOTERO_CACHE_API_KEY,
-                    },
-                    timeout=10,
-                    headers={'User-Agent':OABOT_USER_AGENT})
-            print(url)
-
-            # Is a full text available there?
-            items = None
-            try:
-                items = r.json()
-            except ValueError:
-                if r.status_code == 403:
-                    raise ValueError("Please provide a valid Zotero cache API key")
-            if not items:
-                return False
-
-            for item in items:
-                for attachment in item.get('attachments',[]):
-                    if attachment.get('mimeType') == 'application/pdf':
-                        # We found a candidate PDF!
-                        # Check that it looks like a legit scholarly paper
-                        print('attachment url')
-                        print(attachment.get('url'))
-                        return paper_filter.classify_url(attachment.get('url'))
-                    elif attachment.get('title') == 'PubMed Central Link':
-                        return True
-    except requests.exceptions.Timeout:
-        pass
-    return False
-
 
 def add_oa_links_in_references(text, page):
     """
