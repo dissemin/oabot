@@ -57,6 +57,7 @@
         <ol>
 
         {%  for template_edit in proposed_edits %}
+            {% if 'policy' in template_edit %}
             <div class="sherparomeo">
                 <b>Copyright guidance</b><br>
                 <div class="sherparomeonote">Are the authors of this citation permitted to archive the...</div>
@@ -65,6 +66,7 @@
                 Published: {{ circle_color( template_edit.policy.published ) }}<br>
                 <div class="sherparomeonote">Data from <i>Sherpa/Romeo</i></div>
             </div>
+            {% endif %}
             <li id="{{ template_edit.index +1 }}">
             <div class="wiki">{{ template_edit.orig_string|wikirender }}</div>
             <p>
