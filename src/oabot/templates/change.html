@@ -1,11 +1,13 @@
 <!doctype html>
 {% macro circle_color(policy) -%}
     {% if policy == 'can' %}
-        <div class="circle-green"></div> Allowed
+        <div class="circle circle-green"></div> Allowed
     {% elif policy == 'restricted' %}
-        <div class="circle-orange"></div> Restricted
+        <div class="circle circle-orange"></div> Restricted
     {% elif policy == 'cannot' %}
-        <div class="circle-red"></div> Forbidden
+        <div class="circle circle-red"></div> Forbidden
+    {% else %}
+        <div class="circle"></div> Unknown
     {% endif %}
 {%- endmacro %}
 <html>
