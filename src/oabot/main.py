@@ -32,18 +32,18 @@ class TemplateEdit(object):
     on a citation template
     """
     def __init__(self, tpl, page):
-	"""
-	:param tpl: a mwparserfromhell template: the original template
-		that we want to change
-	"""
-	self.template = tpl
-	self.orig_string = unicode(self.template)
-	r = md5.md5()
-	r.update(self.orig_string.encode('utf-8'))
-	self.orig_hash = r.hexdigest()
-	self.classification = None
+        """
+        :param tpl: a mwparserfromhell template: the original template
+                that we want to change
+        """
+        self.template = tpl
+        self.orig_string = unicode(self.template)
+        r = md5.md5()
+        r.update(self.orig_string.encode('utf-8'))
+        self.orig_hash = r.hexdigest()
+        self.classification = None
         self.conflicting_value = ''
-	self.proposed_change = ''
+        self.proposed_change = ''
         self.proposed_link = None
         self.index = None
         self.page = page
@@ -63,13 +63,13 @@ class TemplateEdit(object):
         }
 
     def propose_change(self):
-	"""
-	Fetches open urls for that template and proposes a change
-	"""
+        """
+        Fetches open urls for that template and proposes a change
+        """
         reference = parse_citation_template(self.template)
         tpl_name = unicode(self.template.name).lower().strip()
         if not reference or tpl_name in excluded_templates:
-	    self.classification = 'ignored'
+            self.classification = 'ignored'
             return
 
         sys.stdout.write('.')
