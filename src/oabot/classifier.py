@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from settings import *
-import subprocess32 as subprocess
 import tempfile
 import shutil
 import os

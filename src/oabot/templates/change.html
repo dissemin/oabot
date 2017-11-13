@@ -1,4 +1,15 @@
 <!doctype html>
+{% macro circle_color(policy) -%}
+    {% if policy == 'can' %}
+        <div class="circle circle-green"></div> Allowed
+    {% elif policy == 'restricted' %}
+        <div class="circle circle-orange"></div> Restricted
+    {% elif policy == 'cannot' %}
+        <div class="circle circle-red"></div> Forbidden
+    {% else %}
+        <div class="circle"></div> Unknown
+    {% endif %}
+{%- endmacro %}
 <html>
     <head>
         <title> OAbot: {{ page_name }}</title>
@@ -46,6 +57,14 @@
         <ol>
 
         {%  for template_edit in proposed_edits %}
+            <div class="sherparomeo">
+                <b>Copyright guidance</b><br>
+                <div class="sherparomeonote">Are the authors of this citation permitted to archive the...</div>
+                Preprint: {{ circle_color( template_edit.policy.preprint ) }}<br>
+                Postprint: {{ circle_color( template_edit.policy.postprint ) }}<br>
+                Published: {{ circle_color( template_edit.policy.published ) }}<br>
+                <div class="sherparomeonote">Data from <i>Sherpa/Romeo</i></div>
+            </div>
             <li id="{{ template_edit.index +1 }}">
             <div class="wiki">{{ template_edit.orig_string|wikirender }}</div>
             <p>

@@ -6,7 +6,7 @@ import re
 # helper
 def get_value(template, param):
     if template.has(param, ignore_empty=True):
-	return unicode(template.get(param).value).strip()
+        return unicode(template.get(param).value).strip()
 
 ##############
 # Edit logic #
@@ -31,7 +31,7 @@ class ArgumentMapping(object):
         self.is_id = is_id
         self.alternate_names = alternate_names
         self.group_id = group_id
-	self.always_free = always_free
+        self.always_free = always_free
         self.custom_access = custom_access
 
     def get(self, template):
@@ -81,12 +81,12 @@ class ArgumentMapping(object):
 url_pdf_extension_re = re.compile(r'.*\.pdf([\?#].*)?$', re.IGNORECASE)
 class UrlArgumentMapping(ArgumentMapping):
     def present_and_free(self, template):
-	val = self.get(template)
-	if val:
-	    match = url_pdf_extension_re.match(val.strip())
-	    if match:
-		return True
-	return False
+        val = self.get(template)
+        if val:
+            match = url_pdf_extension_re.match(val.strip())
+            if match:
+                return True
+        return False
 
 template_arg_mappings = [
     ArgumentMapping(

@@ -107,6 +107,36 @@ body {
     text-align: right;
     margin: 30px;
 }
+.circle {
+    height: 10px;
+    width: 10px;
+    display: block;
+    border: 1px solid black;
+    border-radius: 10px;   
+    display: inline-block;
+}
+.circle-green {
+    background: #09ba00;
+}
+.circle-orange {
+    background: #ffc61c;
+}
+.circle-red {
+    background: #ed4b23;
+}
+.sherparomeo {
+    border: 1px solid #888;
+    border-width: 2px;
+    border-radius: 5px;
+    display: inline-block;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+.sherparomeonote {
+    margin-top: 5px;
+    margin-bottom: 3px;
+    font-size: 0.9em;
+}
 .startbutton {
     max-width: 500px;
     margin: 0 auto;
