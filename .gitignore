@@ -9,7 +9,7 @@ dist/
 throttle.ctrl
 apicache/
 # Cache
-cache/*.html
+src/cache/*.html
 # Secret
 zotero_cache_key.txt
 # Toolsforge config
