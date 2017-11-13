@@ -210,7 +210,7 @@ def get_oa_link(reference):
     oa_url = None
     candidate_urls = sort_links([
         record.get('pdf_url') for record in
-        paper_object.get('records',[])
+        paper_object.get('records',[])  if record.get('pdf_url')
     ])
     for url in sort_links(candidate_urls):
         if url:
