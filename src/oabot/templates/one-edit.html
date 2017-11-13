@@ -1,4 +1,13 @@
 <!doctype html>
+{% macro circle_color(policy) -%}
+    {% if policy == 'can' %}
+        <div class="circle-green"></div> Allowed
+    {% elif policy == 'restricted' %}
+        <div class="circle-orange"></div> Restricted
+    {% elif policy == 'cannot' %}
+        <div class="circle-red"></div> Forbidden
+    {% endif %}
+{%- endmacro %}
 <html>
     <head>
         <title>OAbot: {{ page_name }}</title>
@@ -44,6 +53,15 @@
         <h3>Citation</h3>
         <form id="edit-form" action="{{ url_for('perform_edit') }}" method="POST"> 
         <input type="hidden" name="name" value="{{ page_name }}" />
+
+        <div class="sherparomeo">
+            <b>Copyright guidance</b><br>
+            <div class="sherparomeonote">Are the authors of this citation permitted to archive the...</div>
+            Preprint: {{ circle_color( proposed_edit.policy.preprint ) }}<br>
+            Postprint: {{ circle_color( proposed_edit.policy.postprint ) }}<br>
+            Published: {{ circle_color( proposed_edit.policy.published ) }}<br>
+            <div class="sherparomeonote">Data from <i>Sherpa/Romeo</i></div>
+        </div>
 
         <div class="wiki">{{ proposed_edit.orig_string|wikirender }}</div>
         <p>
