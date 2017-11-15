@@ -47,6 +47,7 @@ class TemplateEdit(object):
         self.proposed_link = None
         self.index = None
         self.page = page
+        self.proposed_link_policy = None
 
     def is_https(self):
         return self.proposed_link and self.proposed_link.startswith('https')
@@ -60,6 +61,7 @@ class TemplateEdit(object):
             'proposed_change': self.proposed_change,
             'proposed_link': self.proposed_link,
             'index': self.index,
+            'policy': self.proposed_link_policy,
         }
 
     def propose_change(self):
@@ -111,6 +113,8 @@ class TemplateEdit(object):
         # We found an OA link!
         self.proposed_link = link
 
+        self.proposed_link_policy = get_sherpa_romeo_policy(reference, link)
+
         # Try to match it with an argument
         argument_found = False
         for argmap in template_arg_mappings:
@@ -161,6 +165,46 @@ class TemplateEdit(object):
 
 def remove_diacritics(s):
     return unidecode(s) if type(s) == unicode else s
+
+def get_sherpa_romeo_policy(reference, link):
+    """
+    Given a citation template (as parsed by wikiciteparser and a proposed link)
+    get the shepa romeo policy for that link
+    """
+    # TODO: next few lines repeat, could move to their own method to avoid code duplication
+    doi = reference.get('ID_list', {}).get('DOI')
+    title = reference.get('Title')
+    authors = reference.get('Authors', [])
+    date = reference.get('Date')
+
+    # CS1 represents unparsed authors as {'last':'First Last'}
+    for i in range(len(authors)):
+        if 'first' not in authors[i]:
+            authors[i] = {'plain':authors[i].get('last','')}
+
+    args = {
+        'title':title,
+        'authors':authors,
+        'date':date,
+        'doi':doi,
+        }
+
+    # first, try dissemin
+    # (rationale: dissemin returns links that are easier
+    # to convert to identifiers (DOI, HDL) so it gives cleaner
+    # template outputs)
+    req = requests.post('https://dissem.in/api/query',
+                        json=args,
+                        headers={'User-Agent':OABOT_USER_AGENT})
+
+    resp = req.json()  
+    paper_object = resp.get('paper', {})
+
+    for record in paper_object.get('records',[]):
+        if record.get('policy'):
+            return record.get('policy')
+    
+    return None
 
 def get_oa_link(reference):
     """
