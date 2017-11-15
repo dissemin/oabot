@@ -163,6 +163,7 @@ def from_cache_name(cache_fname):
 
 def list_cache_contents():
     for (_, _, fnames) in os.walk('cache/'):
+        fnames = list(filter(lambda fn: fn.endswith('.json'), fnames))
         return map(from_cache_name, fnames)
 
 def refresh_whole_cache():
