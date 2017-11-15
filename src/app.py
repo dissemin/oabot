@@ -134,6 +134,7 @@ def process():
         nb_edits = UserStats.get('en', username).nb_edits
     context['username'] = username
     context['nb_edits'] = nb_edits
+    context['proposed_edits'] = [template_edit for template_edit in context['proposed_edits'] if (template_edit['classification'] != 'rejected')]
     return flask.render_template('change.html', **context)
 
 @app.route('/review-edit')
@@ -241,7 +242,7 @@ def make_new_wikicode(text, form_data, page_name):
     change_made = False
     for template in wikicode.filter_templates():
         edit = main.TemplateEdit(template, page_name)
-        if edit.classification == 'ignored':
+        if edit.classification == 'ignored' or edit.classification == 'rejected':
             continue
         proposed_addition = form_data.get(edit.orig_hash)
         user_checked = form_data.get(edit.orig_hash+'-addlink')
@@ -253,6 +254,14 @@ def make_new_wikicode(text, form_data, page_name):
                 pass # TODO report to the user
     return unicode(wikicode), change_made
 
+
+def chosen_rejections(form_data):
+    rejections = []
+    for key in form_data:
+        user_checked = form_data.get(key + '-addlink')
+        if user_checked:
+            rejections.append(key)
+    return rejections
 
 @app.route('/perform-edit', methods=['POST'])
 def perform_edit():
@@ -324,6 +333,38 @@ def preview_edit():
 
     diff = make_diff(text, new_text)
     return '<div class="diffcontainer">'+diff+'</div>'
+
+@app.route('/reject-edit', methods=['POST'])
+def reject_edit():
+    data = flask.request.form
+
+    page_name = data.get('name')
+    if not page_name:
+        raise InvalidUsage('Page title is required')
+
+    force = flask.request.args.get('refresh') == 'true'
+    context = get_proposed_edits(page_name, force)
+
+    if not context.get('proposed_edits'):
+        return 'NothingChanged'
+
+    rejections = chosen_rejections(data)
+    if len(rejections) == 0:
+        return 'NothingChanged'
+
+    num_rejections = 0
+    suggestions = context.get('proposed_edits')
+    for suggestion in suggestions:
+        if suggestion['orig_hash'] in rejections:
+            suggestion['classification'] = 'rejected'
+        if suggestion['classification'] == 'rejected':
+            num_rejections += 1
+    cache_fname = "cache/"+to_cache_name(page_name)
+    with open(cache_fname, 'w') as f:
+        json.dump(context, f)
+    if num_rejections == len(suggestions):
+        return 'NoMoreSuggestions'
+    return 'PartiallyRejected'
 
 @app.route('/stats')
 def stats():
