@@ -188,6 +188,7 @@ def get_random_edit():
         page_json = json.load(f)
 
     proposed_edits = page_json.get('proposed_edits', [])
+    proposed_edits = [template_edit for template_edit in proposed_edits if (template_edit['classification'] != 'rejected')]
     if proposed_edits:
         edit_idx = randint(0, len(proposed_edits)-1)
         orig_hash = proposed_edits[edit_idx]['orig_hash']
