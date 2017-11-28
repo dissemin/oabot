@@ -48,6 +48,7 @@ class TemplateEdit(object):
         self.index = None
         self.page = page
         self.proposed_link_policy = None
+        self.issn = None
 
     def is_https(self):
         return self.proposed_link and self.proposed_link.startswith('https')
@@ -62,6 +63,7 @@ class TemplateEdit(object):
             'proposed_link': self.proposed_link,
             'index': self.index,
             'policy': self.proposed_link_policy,
+            'issn': self.issn,
         }
 
     def propose_change(self):
@@ -116,6 +118,7 @@ class TemplateEdit(object):
         self.proposed_link = link
 
         self.proposed_link_policy = get_paper_values(dissemin_paper_object, 'policy')
+        self.issn = get_paper_values(dissemin_paper_object, 'issn')
 
         # Try to match it with an argument
         argument_found = False
@@ -212,6 +215,9 @@ def get_oa_link(paper):
     oa_url = None
     dissemin_pdf_url = paper.get('pdf_url')
 
+    doi = paper.get('doi')
+    if doi is not None:
+        doi = "/".join(doi.split("/")[-2:])
 
     # Dissemin's full text detection is not always accurate, so
     # we manually go through each url for the paper and check
