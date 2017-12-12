@@ -212,9 +212,6 @@ def get_paper_values(paper, attribute):
 
 def get_oa_link(paper):
 
-    oa_url = None
-    dissemin_pdf_url = paper.get('pdf_url')
-
     doi = paper.get('doi')
     if doi is not None:
         doi = "/".join(doi.split("/")[-2:])
@@ -226,7 +223,6 @@ def get_oa_link(paper):
     # if we want more accurate (but slower) results
     # we can check availability manually:
 
-    oa_url = None
     candidate_urls = sort_links([
         record.get('pdf_url') for record in
         paper.get('records',[])  if record.get('pdf_url')

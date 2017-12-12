@@ -131,12 +131,14 @@ body {
     display: inline-block;
     padding: 5px;
     margin-bottom: 5px;
-    font-style: italic;
 }
 .sherparomeonote {
     margin-top: 5px;
     margin-bottom: 3px;
     font-size: 0.9em;
+}
+.sherparomeolink {
+    font-style: italic;
 }
 .startbutton {
     max-width: 500px;
