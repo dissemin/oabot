@@ -124,6 +124,10 @@ body {
 .circle-red {
     background: #ed4b23;
 }
+.report-error {
+    margin-top: 50px;
+    font-style: italic;
+}
 .sherparomeo {
     border: 1px solid #888;
     border-width: 2px;
