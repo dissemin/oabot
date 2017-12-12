@@ -12,14 +12,13 @@
 {%- endmacro %}
 <html>
     <head>
-        <title>OAbot: {{ page_name }}</title>
+        <title> OAbot: {{ page_name }}</title>
         <link rel="shortcut icon" href="{{ url_for('send_static', path='favicon.ico') }}">
         <link rel="stylesheet" href="{{ url_for('send_static', path='css/style.css') }}" />
         <link rel="stylesheet" href="{{ url_for('send_static', path='css/bootstrap.min.css') }}" />
         <script src="{{ url_for('send_static', path='js/jquery-1.11.3.min.js') }}"></script>
     </head>
     <body>
-
         <p class="loginsection">{% if username %}
 	    Logged in as <a href="https://en.wikipedia.org/wiki/User:{{ username }}">{{ username }}</a>
 	(<a href="{{ url_for('logout') }}">logout</a>).{% if nb_edits %}<br/>
@@ -63,7 +62,13 @@
             Preprint: {{ circle_color( proposed_edit.policy.preprint ) }}<br>
             Postprint: {{ circle_color( proposed_edit.policy.postprint ) }}<br>
             Published: {{ circle_color( proposed_edit.policy.published ) }}<br>
-            <div class="sherparomeonote">Data from <i><a href="http://www.sherpa.ac.uk/romeo">Sherpa/Romeo</a>.</i></div>
+            <div class="sherparomeonote sherparomeolink">Data from Sherpa/Romeo. 
+                {% if 'issn' in template_edit %}
+                    <a href="http://www.sherpa.ac.uk/romeo/search.php?issn={{ template_edit.issn }}">Full details.</a>
+                {% else %}
+                    Sherpa/Romeo
+                {% endif %}
+            </div>
         </div>
         {% endif %}
 

@@ -48,6 +48,7 @@ class TemplateEdit(object):
         self.index = None
         self.page = page
         self.proposed_link_policy = None
+        self.issn = None
 
     def is_https(self):
         return self.proposed_link and self.proposed_link.startswith('https')
@@ -62,6 +63,7 @@ class TemplateEdit(object):
             'proposed_link': self.proposed_link,
             'index': self.index,
             'policy': self.proposed_link_policy,
+            'issn': self.issn,
         }
 
     def propose_change(self):
@@ -104,8 +106,10 @@ class TemplateEdit(object):
             self.classification = 'registration_subscription'
             # return
 
+        dissemin_paper_object = get_dissemin_paper(reference)
+
         # Otherwise, try to get a free link
-        link = get_oa_link(reference)
+        link = get_oa_link(dissemin_paper_object)
         if not link:
             self.classification = 'not_found'
             return
@@ -113,7 +117,8 @@ class TemplateEdit(object):
         # We found an OA link!
         self.proposed_link = link
 
-        self.proposed_link_policy = get_sherpa_romeo_policy(reference, link)
+        self.proposed_link_policy = get_paper_values(dissemin_paper_object, 'policy')
+        self.issn = get_paper_values(dissemin_paper_object, 'issn')
 
         # Try to match it with an argument
         argument_found = False
@@ -166,12 +171,11 @@ class TemplateEdit(object):
 def remove_diacritics(s):
     return unidecode(s) if type(s) == unicode else s
 
-def get_sherpa_romeo_policy(reference, link):
+def get_dissemin_paper(reference):
     """
     Given a citation template (as parsed by wikiciteparser and a proposed link)
-    get the shepa romeo policy for that link
+    get dissemin API information for that link
     """
-    # TODO: next few lines repeat, could move to their own method to avoid code duplication
     doi = reference.get('ID_list', {}).get('DOI')
     title = reference.get('Title')
     authors = reference.get('Authors', [])
@@ -189,10 +193,6 @@ def get_sherpa_romeo_policy(reference, link):
         'doi':doi,
         }
 
-    # first, try dissemin
-    # (rationale: dissemin returns links that are easier
-    # to convert to identifiers (DOI, HDL) so it gives cleaner
-    # template outputs)
     req = requests.post('https://dissem.in/api/query',
                         json=args,
                         headers={'User-Agent':OABOT_USER_AGENT})
@@ -200,61 +200,32 @@ def get_sherpa_romeo_policy(reference, link):
     resp = req.json()  
     paper_object = resp.get('paper', {})
 
-    for record in paper_object.get('records',[]):
-        if record.get('policy'):
-            return record.get('policy')
+    return paper_object
+
+def get_paper_values(paper, attribute):
+
+    for record in paper.get('records',[]):
+        if record.get(attribute):
+            return record.get(attribute)
     
     return None
 
-def get_oa_link(reference):
-    """
-    Given a citation template (as parsed by wikiciteparser),
-    return a link to a full text for this citation (or None).
-    """
-    doi = reference.get('ID_list', {}).get('DOI')
-    title = reference.get('Title')
-    authors = reference.get('Authors', [])
-    date = reference.get('Date')
+def get_oa_link(paper):
 
-    # CS1 represents unparsed authors as {'last':'First Last'}
-    for i in range(len(authors)):
-        if 'first' not in authors[i]:
-            authors[i] = {'plain':authors[i].get('last','')}
-
-    args = {
-        'title':title,
-        'authors':authors,
-        'date':date,
-        'doi':doi,
-        }
-
-    # first, try dissemin
-    # (rationale: dissemin returns links that are easier
-    # to convert to identifiers (DOI, HDL) so it gives cleaner
-    # template outputs)
-    req = requests.post('https://dissem.in/api/query',
-                        json=args,
-                        headers={'User-Agent':OABOT_USER_AGENT})
-
-    resp = req.json()
-
-    oa_url = None
+    doi = paper.get('doi')
+    if doi is not None:
+        doi = "/".join(doi.split("/")[-2:])
 
     # Dissemin's full text detection is not always accurate, so
     # we manually go through each url for the paper and check
     # if it is free to read.
-    paper_object = resp.get('paper', {})
-    dissemin_pdf_url = paper_object.get('pdf_url')
-
-    # return dissemin_pdf_url
 
     # if we want more accurate (but slower) results
     # we can check availability manually:
 
-    oa_url = None
     candidate_urls = sort_links([
         record.get('pdf_url') for record in
-        paper_object.get('records',[])  if record.get('pdf_url')
+        paper.get('records',[])  if record.get('pdf_url')
     ])
     for url in sort_links(candidate_urls):
         if url:

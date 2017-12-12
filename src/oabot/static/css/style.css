@@ -137,6 +137,9 @@ body {
     margin-bottom: 3px;
     font-size: 0.9em;
 }
+.sherparomeolink {
+    font-style: italic;
+}
 .startbutton {
     max-width: 500px;
     margin: 0 auto;
