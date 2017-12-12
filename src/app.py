@@ -72,11 +72,16 @@ class InvalidUsage(Exception):
             self.status_code = status_code
         self.payload = payload
 
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
 @app.errorhandler(InvalidUsage)
 def handle_invalid_usage(error):
-    response = flask.render_template("error.html", message=error.message)
+    response = flask.jsonify(error.to_dict())
     response.status_code = error.status_code
-    return response
+    return flask.render_template("error.html", message=error.message)
 
 @app.errorhandler(Exception)
 def handle_invalid_usage(error):
@@ -279,7 +284,7 @@ def perform_edit():
         raise InvalidUsage('Page title is required')
     summary = data.get('summary')
     if not summary:
-        raise InvalidUsage('No summary provided')
+        raise InvalidUsage('No edit summary provided')
 
     # Get the page
     text = main.get_page_over_api(page_name)
@@ -325,7 +330,7 @@ def preview_edit():
         raise InvalidUsage('Page title is required')
     summary = data.get('summary')
     if not summary:
-        raise InvalidUsage('No summary provided')
+        raise InvalidUsage('No edit summary provided')
 
     # Get the page
     text = main.get_page_over_api(page_name)
