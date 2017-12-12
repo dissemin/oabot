@@ -264,9 +264,9 @@ def perform_edit():
     data = flask.request.form
 
     # Check we are logged in
-    #access_token =flask.session.get('access_token', None)
-    #if not access_token:
-    #    return flask.redirect(flask.url_for('login'))
+    access_token =flask.session.get('access_token', None)
+    if not access_token:
+        return flask.redirect(flask.url_for('login'))
 
     page_name = data.get('name')
     if not page_name:
