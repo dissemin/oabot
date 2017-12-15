@@ -131,6 +131,8 @@ def edit_wiki_page(page_name, content, summary=None):
 @app.route('/process')
 def process():
     page_name = flask.request.args.get('name')
+    if not page_name:
+        raise InvalidUsage('Page title is required')
     force = flask.request.args.get('refresh') == 'true'
     context =  get_proposed_edits(page_name, force)
     username = flask.session.get('username', None)
@@ -280,8 +282,6 @@ def perform_edit():
         return flask.redirect(flask.url_for('login'))
 
     page_name = data.get('name')
-    if not page_name:
-        raise InvalidUsage('Page title is required')
     summary = data.get('summary')
     if not summary:
         raise InvalidUsage('No edit summary provided')
@@ -326,8 +326,6 @@ def preview_edit():
     data = flask.request.form
 
     page_name = data.get('name')
-    if not page_name:
-        raise InvalidUsage('Page title is required')
     summary = data.get('summary')
     if not summary:
         raise InvalidUsage('No edit summary provided')
