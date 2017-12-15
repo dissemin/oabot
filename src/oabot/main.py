@@ -229,7 +229,8 @@ def get_oa_link(paper):
     ])
     for url in sort_links(candidate_urls):
         if url:
-            return url
+            if "researchgate.net" not in url:
+                return url
 
     # then, try OAdoi
     # (OAdoi finds full texts that dissemin does not, so it's always good to have!)
