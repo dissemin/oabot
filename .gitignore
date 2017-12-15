@@ -10,6 +10,7 @@ throttle.ctrl
 apicache/
 # Cache
 src/cache/*.html
+src/oabot/templates/change_*.html
 # Secret
 zotero_cache_key.txt
 # Toolsforge config
