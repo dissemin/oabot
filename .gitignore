@@ -9,7 +9,7 @@ dist/
 throttle.ctrl
 apicache/
 # Cache
-src/cache/*.html
+src/cache/*.json
 src/oabot/templates/change_*.html
 # Secret
 zotero_cache_key.txt
