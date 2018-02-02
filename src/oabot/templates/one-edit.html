@@ -80,7 +80,8 @@
         <small>This tool will perform edits using your Wikipedia account. Please ensure you understand the section of the copyright policy regarding the addition of links to copyright violating works (<a href="https://en.wikipedia.org/wiki/WP:COPYLINK">WP:COPYLINK</a>). Repeated violations may result in warnings or blocks.</small>
         <p>
         <span class="btn-group">
-            <input type="button" accesskey="1" onclick="window.location.href='{{ url_for('get_random_edit') }}'" class="btn btn-danger" value="Skip" />
+            <input type="button" accesskey="0" onclick="reject_suggestion()" value="Reject" class="btn btn-danger" />
+            <input type="button" accesskey="1" onclick="window.location.href='{{ url_for('get_random_edit') }}'" class="btn btn-warning" value="Skip" />
             <input type="button" accesskey="2" onclick="preview()" value="Preview" class="btn btn-default" />
             <input class="btn btn-success" accesskey="3" type="submit" value="Add link" />
         </span>
@@ -93,6 +94,14 @@
                 $("#edit-form").serialize(),
                 function(diff) {
                     $("#preview-diff").html(diff);
+                });
+        }
+        function reject_suggestion() {
+            $.post(
+                "{{ url_for('reject_edit') }}",
+                $("#edit-form").serialize(),
+                function(data) {
+                    window.location.href="{{ url_for('get_random_edit') }}";
                 });
         }
         </script>
