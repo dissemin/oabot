@@ -19,6 +19,7 @@ from settings import *
 from ondiskcache import OnDiskCache
 from classifier import AcademicPaperFilter
 import md5
+from time import sleep
 
 urls_cache = OnDiskCache('urls_cache.pkl')
 paper_filter = AcademicPaperFilter()
@@ -157,7 +158,7 @@ class TemplateEdit(object):
         """
         Given a change of the form "param=value", add it to the template
         """
-        bits = change.split('=')
+        bits = re.split('=', change, maxsplit=1)
         if len(bits) != 2:
             raise ValueError('invalid change')
         param = bits[0].lower().strip()
@@ -193,14 +194,20 @@ def get_dissemin_paper(reference):
         'doi':doi,
         }
 
-    req = requests.post('https://dissem.in/api/query',
-                        json=args,
-                        headers={'User-Agent':OABOT_USER_AGENT})
+    for retry in range(5):
+        try:
+            req = requests.post('https://dissem.in/api/query',
+                                json=args,
+                                headers={'User-Agent':OABOT_USER_AGENT})
 
-    resp = req.json()  
-    paper_object = resp.get('paper', {})
+            resp = req.json()  
+            paper_object = resp.get('paper', {})
 
-    return paper_object
+            return paper_object
+        except (ValueError, requests.exceptions.RequestException) as e:
+            sleep(5)
+            continue
+    return {}
 
 def get_paper_values(paper, attribute):
 
@@ -243,7 +250,6 @@ def get_oa_link(paper):
                 req = requests.get('https://api.oadoi.org/v2/:{}'.format(doi), {'email':email})
                 resp = req.json()
             except ValueError:
-                from time import sleep
                 sleep(10)
                 attempts += 1
                 if attempts >= 3:
