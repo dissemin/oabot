@@ -24,7 +24,7 @@
 	(<a href="{{ url_for('logout') }}">logout</a>).{% if nb_edits %}<br/>
             <a href="{{ url_for('stats') }}">{{ nb_edits }} edits</a> made, thanks!{% endif %}{% endif %}</p>
 
-        <A HREF="http://www.oabot.org"><img src="{{ url_for('send_static', path='oabot_orange_text_above.svg') }}" alt="OAbot" width="100px" height="100px"></A>
+        <A HREF="http://www.oabot.org"><img src="{{ url_for('send_static', path='oabot_orange_text_above.svg') }}" alt="OAbot" width="100px" height="100px" style="float: left;"></A>
         <br/>
         <div class="row">
             <form action="{{ url_for('process') }}" method="get">
@@ -56,9 +56,9 @@
         <input type="hidden" name="name" value="{{ page_name }}" />
 
         {% if 'policy' in proposed_edit %}
-        <div class="sherparomeo">
+        <div class="sherparomeo" style="float: right;">
             <b>Copyright guidance</b><br>
-            <div class="sherparomeonote">Are the authors of this citation permitted to archive the...</div>
+            <div class="sherparomeonote">Does this publication support such deposits?</div>
             Preprint: {{ circle_color( proposed_edit.policy.preprint ) }}<br>
             Postprint: {{ circle_color( proposed_edit.policy.postprint ) }}<br>
             Published: {{ circle_color( proposed_edit.policy.published ) }}<br>
@@ -75,7 +75,8 @@
             <input type="hidden" name="{{ proposed_edit.orig_hash }}-addlink" value="checked"  />
             <span class="addlink">Proposed link: <a href="{{ proposed_edit.proposed_link }}" target="_blank">{{ proposed_edit.proposed_link }}</a></span></p>
         <input type="hidden" size="100" name="{{ proposed_edit.orig_hash }}" value="{{ proposed_edit.proposed_change }}" />
-       
+        <div style="clear: both;"></div>
+
         <h3>Actions</h3>
         <small>This tool will perform edits using your Wikipedia account. Please ensure you understand the section of the copyright policy regarding the addition of links to copyright violating works (<a href="https://en.wikipedia.org/wiki/WP:COPYLINK">WP:COPYLINK</a>). Repeated violations may result in warnings or blocks.</small>
         <p>
