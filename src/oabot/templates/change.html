@@ -58,7 +58,7 @@
 
         {%  for template_edit in proposed_edits %}
             {% if 'policy' in template_edit %}
-            <div class="sherparomeo">
+           <div class="sherparomeo" style="float: right;"> 
                 <b>Copyright guidance</b>
                 <div class="sherparomeonote">Does this publication support such deposits?</div>
                 Preprint: {{ circle_color( template_edit.policy.preprint ) }}<br>
