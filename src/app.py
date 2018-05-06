@@ -260,6 +260,7 @@ def make_new_wikicode(text, form_data, page_name):
                 edit.update_template(proposed_addition)
                 change_made = True
             except ValueError:
+                app.logger.exception('update_template failed on {}'.format(page_name))
                 pass # TODO report to the user
     return unicode(wikicode), change_made
 
