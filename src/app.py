@@ -99,8 +99,7 @@ def index():
     }
     return flask.render_template("index.html", **context)
 
-def edit_wiki_page(page_name, content, summary=None):
-    access_token = flask.session.get('access_token', None)
+def edit_wiki_page(page_name, content, access_token, summary=None, bot=False):
     auth = OAuth1(
         app.config['CONSUMER_KEY'],
         app.config['CONSUMER_SECRET'],
@@ -119,11 +118,12 @@ def edit_wiki_page(page_name, content, summary=None):
     r = requests.post('https://en.wikipedia.org/w/api.php', data={
     'action':'edit',
         'title': page_name,
-    'text': content,
+        'text': content,
         'summary': summary,
         'format': 'json',
         'token': token,
         'watchlist': 'nochange',
+        'bot': bot,
     }, auth=auth)
     r.raise_for_status()
 
@@ -168,8 +168,8 @@ def to_cache_name(page_name):
 def from_cache_name(cache_fname):
     return cache_fname[:-5].replace('_',' ').replace('#','/')
 
-def list_cache_contents():
-    for (_, _, fnames) in os.walk('cache/'):
+def list_cache_contents(directory='cache/'):
+    for (_, _, fnames) in os.walk(directory):
         fnames = list(filter(lambda fn: fn.endswith('.json'), fnames))
         return map(from_cache_name, fnames)
 
@@ -295,7 +295,8 @@ def perform_edit():
 
     # Save the page
     if change_made:
-        edit_wiki_page(page_name, new_text, summary)
+        access_token = flask.session.get('access_token', None)
+        edit_wiki_page(page_name, new_text, access_token, summary)
         UserStats.increment_user(
             'en',
             flask.session.get('username', None),
@@ -309,7 +310,6 @@ def perform_edit():
         return flask.redirect(flask.url_for('get_random_edit'))
     else:
         return flask.redirect(flask.url_for('index', success='nothing'))
-
 
 def make_diff(old, new):
     """
@@ -432,6 +432,8 @@ def oauth_callback():
     else:
         flask.session['access_token'] = dict(zip(
             access_token._fields, access_token))
+        print('//////// ACCESS_TOKEN')
+        print(access_token)
         flask.session['username'] = identity['username']
 
     next_url = flask.request.args.get('next_url') or flask.url_for('get_random_edit')
