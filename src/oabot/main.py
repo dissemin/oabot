@@ -233,7 +233,7 @@ def get_oa_link(paper):
     ])
     for url in sort_links(candidate_urls):
         if url:
-			if not is_blacklisted(url):
+            if not is_blacklisted(url):
                 return url
 
     # then, try OAdoi

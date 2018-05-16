@@ -115,7 +115,7 @@ def edit_wiki_page(page_name, content, access_token, summary=None, bot=False):
     r.raise_for_status()
     token = r.json()['query']['tokens']['csrftoken']
 
-    r = requests.post('https://en.wikipedia.org/w/api.php', data={
+    data = {
     'action':'edit',
         'title': page_name,
         'text': content,
@@ -123,8 +123,11 @@ def edit_wiki_page(page_name, content, access_token, summary=None, bot=False):
         'format': 'json',
         'token': token,
         'watchlist': 'nochange',
-        'bot': bot,
-    }, auth=auth)
+    }
+    if bot:
+        data['bot'] = ''
+    r = requests.post('https://en.wikipedia.org/w/api.php', data=data,
+            auth=auth)
     r.raise_for_status()
 
 
