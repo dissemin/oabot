@@ -469,6 +469,10 @@ def redirect_to_url():
 def stream_url():
     url = flask.request.args.get('url')
     r = requests.get(url)
+    # If it's just an HTML page served over HTTPS, no problem
+    if url.startswith('https://') and ( 'text/html' in r.headers['Content-Type'] ):
+        return flask.redirect(flask.url_for('redirect_to_url'), url=url)
+
     response = flask.make_response()
     response.data = r.content
     response.headers['Content-Type'] = r.headers['Content-Type']
