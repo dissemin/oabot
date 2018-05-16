@@ -465,6 +465,18 @@ def redirect_to_url():
     context = {'url':flask.request.args.get('url')}
     return flask.render_template("redirect.html", **context)
 
+@app.route('/stream-url')
+def stream_url():
+    url = flask.request.args.get('url')
+    r = requests.get(url)
+    response = flask.make_response()
+    response.data = r.content
+    response.headers['Content-Type'] = r.headers['Content-Type']
+    # Work around incorrect application/octet-stream
+    if 'zenodo.org' in url:
+        response.headers['Content-Type'] = 'application/pdf'
+    return response
+
 @app.route('/edits/<path:path>')
 def send_edits(path):
     return flask.send_from_directory('edits', path)
