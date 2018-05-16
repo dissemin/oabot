@@ -14,7 +14,7 @@ from datetime import datetime
 from copy import deepcopy
 import os
 from arguments import template_arg_mappings, get_value
-from ranking import sort_links
+from ranking import sort_links, is_blacklisted
 from settings import *
 from ondiskcache import OnDiskCache
 from classifier import AcademicPaperFilter
@@ -23,9 +23,6 @@ from time import sleep
 
 urls_cache = OnDiskCache('urls_cache.pkl')
 paper_filter = AcademicPaperFilter()
-
-rg_re = re.compile('(https?://www\.researchgate\.net/)(.*)(publication/[0-9]*)_.*/links/[0-9a-f]*.pdf')
-
 
 class TemplateEdit(object):
     """
@@ -236,7 +233,7 @@ def get_oa_link(paper):
     ])
     for url in sort_links(candidate_urls):
         if url:
-            if "researchgate.net" not in url:
+            if not is_blacklisted(url):
                 return url
 
     # then, try OAdoi
@@ -266,7 +263,8 @@ def get_oa_link(paper):
                 url = best_oa['url']
                 head = requests.head(url)
                 head.raise_for_status()
-                return url
+                if not is_blacklisted(url):
+                    return url
             except requests.exceptions.RequestException:
                 return None
 
