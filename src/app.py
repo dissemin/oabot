@@ -115,7 +115,7 @@ def edit_wiki_page(page_name, content, access_token, summary=None, bot=False):
     r.raise_for_status()
     token = r.json()['query']['tokens']['csrftoken']
 
-    r = requests.post('https://en.wikipedia.org/w/api.php', data={
+    data = {
     'action':'edit',
         'title': page_name,
         'text': content,
@@ -123,8 +123,11 @@ def edit_wiki_page(page_name, content, access_token, summary=None, bot=False):
         'format': 'json',
         'token': token,
         'watchlist': 'nochange',
-        'bot': bot,
-    }, auth=auth)
+    }
+    if bot:
+        data['bot'] = ''
+    r = requests.post('https://en.wikipedia.org/w/api.php', data=data,
+            auth=auth)
     r.raise_for_status()
 
 
@@ -461,6 +464,18 @@ def send_static(path):
 def redirect_to_url():
     context = {'url':flask.request.args.get('url')}
     return flask.render_template("redirect.html", **context)
+
+@app.route('/stream-url')
+def stream_url():
+    url = flask.request.args.get('url')
+    r = requests.get(url)
+    response = flask.make_response()
+    response.data = r.content
+    response.headers['Content-Type'] = r.headers['Content-Type']
+    # Work around incorrect application/octet-stream
+    if 'zenodo.org' in url:
+        response.headers['Content-Type'] = 'application/pdf'
+    return response
 
 @app.route('/edits/<path:path>')
 def send_edits(path):

@@ -115,7 +115,7 @@
         <iframe width="400" height="300" src="{{ proposed_edit.proposed_link }}"></iframe>
         </div>
         {% else %}
-        <iframe width="400" height="300" src="{{ url_for('redirect_to_url') }}?url={{ proposed_edit.proposed_link|urlencode }}"></iframe>
+        <iframe width="400" height="300" src="{{ url_for('stream_url') }}?url={{ proposed_edit.proposed_link|urlencode }}"></iframe>
         {% endif %}
 
         {% else %}
