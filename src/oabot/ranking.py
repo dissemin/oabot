@@ -16,7 +16,7 @@ domain_priority = {
 }
 # Academia.edu and ResearchGate are not ranked here, they are at an equal (lowest) priority
 domain_blacklist = [
-    'researchgate.net',
+    'www.researchgate.net',
     # Publisher links are redundant with DOI links and often become inaccessible.
     'babel.hathitrust.org',
     'iopscience.iop.org',
