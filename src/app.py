@@ -125,7 +125,7 @@ def edit_wiki_page(page_name, content, access_token, summary=None, bot=False):
         'watchlist': 'nochange',
     }
     if bot:
-        data['bot'] = ''
+        data['bot'] = '1'
     r = requests.post('https://en.wikipedia.org/w/api.php', data=data,
             auth=auth)
     r.raise_for_status()
