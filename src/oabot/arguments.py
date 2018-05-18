@@ -110,7 +110,8 @@ template_arg_mappings = [
         always_free=True),
     ArgumentMapping(
         'citeseerx',
-        r'https?://citeseerx\.ist\.psu\.edu/viewdoc/summary\?doi=(.*)',
+        r'https?://citeseerx\.ist\.psu\.edu/viewdoc/(summary|download)\?doi=([0-9.]*)&.*',
+        group_id=2,
         always_free=True),
     UrlArgumentMapping(
         'url',
