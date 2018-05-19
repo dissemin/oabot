@@ -1,4 +1,4 @@
-Wikipedia OAbot
+Wikipedia OAbot [![Build Status](https://travis-ci.org/dissemin/oabot.svg?branch=master)](https://travis-ci.org/dissemin/oabot)
 ===============
 
 This tool looks for [open access](https://en.wikipedia.org/wiki/Open_access) versions
