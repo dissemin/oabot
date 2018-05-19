@@ -88,34 +88,43 @@ class UrlArgumentMapping(ArgumentMapping):
                 return True
         return False
 
-template_arg_mappings = [
-    ArgumentMapping(
+doi_argument = ArgumentMapping(
         'doi',
         r'https?://(dx\.)?doi\.org/([^ ]*)',
         group_id=2,
-        custom_access=True),
-    ArgumentMapping(
+        custom_access=True)
+
+hdl_argument = ArgumentMapping(
         'hdl',
         r'https?://hdl\.handle\.net/([^ ]*)',
-        custom_access=True),
-    ArgumentMapping(
+        custom_access=True)
+
+arxiv_argument = ArgumentMapping(
         'arxiv',
         r'https?://arxiv\.org/(abs|pdf)/(\d+\.[\d]+|[a-z-]+/\d+)(v\d+)?(\.pdf)?',
         group_id=2,
         alternate_names=['eprint'],
-        always_free=True),
-    ArgumentMapping(
+        always_free=True)
+
+pmc_argument = ArgumentMapping(
         'pmc',
         r'https?://www\.ncbi\.nlm\.nih\.gov/pmc/articles/PMC([^/]*)/?',
-        always_free=True),
-    ArgumentMapping(
+        always_free=True)
+citeseerx_argument = ArgumentMapping(
         'citeseerx',
-        r'https?://citeseerx\.ist\.psu\.edu/viewdoc/(summary|download)\?doi=([0-9.]*)&.*',
+        r'https?://citeseerx\.ist\.psu\.edu/viewdoc/(summary|download)\?doi=([0-9.]*)(&.*)?',
         group_id=2,
-        always_free=True),
-    UrlArgumentMapping(
+        always_free=True)
+url_argument =  UrlArgumentMapping(
         'url',
-        r'(.*)'),
-    ]
+        r'(.*)')
 
+template_arg_mappings = [
+    doi_argument,
+    hdl_argument,
+    arxiv_argument,
+    pmc_argument,
+    citeseerx_argument,
+    url_argument,
+]
 
