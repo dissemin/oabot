@@ -19,6 +19,7 @@ install:
   - pip freeze
 
 script:
+  - cd src
   - coverage run --source=oabot -m unittest tests -v 2
 
 after_success:
