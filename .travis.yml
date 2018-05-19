@@ -20,7 +20,7 @@ install:
 
 script:
   - cd src
-  - coverage run --source=oabot -m unittest tests -v 2
+  - coverage run --source=oabot -m unittest tests
 
 after_success:
   - coveralls
