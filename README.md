@@ -1,4 +1,4 @@
-Wikipedia OAbot
+Wikipedia OAbot [![Build Status](https://travis-ci.org/dissemin/oabot.svg?branch=master)](https://travis-ci.org/dissemin/oabot)
 ===============
 
 This tool looks for [open access](https://en.wikipedia.org/wiki/Open_access) versions
@@ -13,7 +13,7 @@ It relies on the [Dissemin](http://dissem.in) [API](http://dev.dissem.in/api.htm
 ------------------------------------------------------------
 
 Local installation and usage instructions:
-* Clone the repository on your computer and enter the project directory
-* Install dependencies with `pip install -r requirements.txt`
+* Clone the repository on your computer and enter the project directory. For now OAbot requires Python 2.7 and is not compatible with Python 3.
+* Install dependencies with `pip install -r requirements.txt`.
 * Create a database config with `cp dbconfig.py.in dbconfig.py` (this database is used to store edit counts)
 * Serve the application with a [WSGI](http://enwp.org/WSGI)-enabled server, using `app.py`, or run the application locally with `python app.py`, which serves the tool on `http://localhost:5000/`.

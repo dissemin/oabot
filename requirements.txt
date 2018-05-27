@@ -11,3 +11,4 @@ requests_oauthlib
 sqlalchemy
 configparser
 mysql
+pyOpenSSL
