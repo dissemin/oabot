@@ -2,6 +2,14 @@ import pywikibot
 import sys
 import requests
 from app import get_proposed_edits, app
+import threading
+from time import sleep
+
+def worker(title=None):
+    try:
+        get_proposed_edits(title, False, True)
+    except:
+        pass
 
 def prefill_cache(max_pages=5000, starting_page=None):
     site = pywikibot.Site()
@@ -18,13 +26,14 @@ def prefill_cache(max_pages=5000, starting_page=None):
         if not starting_page_seen:
             continue
         try:
-            get_proposed_edits(p.title(), False, True)
-            count += 1
+            threading.Thread(target=worker, args=[p.title()]).start()
         except:
-            print("ERROR: Something went wrong with this page!")
+            sleep(60)
+        count += 1
+        sleep(0.1)
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
-        prefill_cache(1000000, sys.argv[1]) 
+        prefill_cache(5000000, sys.argv[1])
     else:
-        prefill_cache(1000000) 
+        prefill_cache(5000000)
