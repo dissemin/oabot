@@ -93,28 +93,33 @@ template_arg_mappings = [
         'doi',
         r'https?://(dx\.)?doi\.org/([^ ]*)',
         group_id=2,
+        alternate_names=['DOI'],
         custom_access=True),
     ArgumentMapping(
         'hdl',
         r'https?://hdl\.handle\.net/([^ ]*)',
+        alternate_names=['HDL'],
         custom_access=True),
     ArgumentMapping(
         'arxiv',
         r'https?://arxiv\.org/(abs|pdf)/(\d+\.[\d]+|[a-z-]+/\d+)(v\d+)?(\.pdf)?',
         group_id=2,
-        alternate_names=['eprint'],
+        alternate_names=['eprint','ARXIV','arXiv'],
         always_free=True),
     ArgumentMapping(
         'pmc',
         r'https?://www\.ncbi\.nlm\.nih\.gov/pmc/articles/PMC([^/]*)/?',
+        alternate_names=['PMC'],
         always_free=True),
     ArgumentMapping(
         'citeseerx',
         r'https?://citeseerx\.ist\.psu\.edu/viewdoc/summary\?doi=(.*)',
+        alternate_names=['CITESEERX'],
         always_free=True),
     UrlArgumentMapping(
         'url',
-        r'(.*)'),
+        r'(.*)',
+        alternate_names=['URL']),
     ]
 
 
