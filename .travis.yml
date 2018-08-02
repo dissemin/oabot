@@ -1,0 +1,27 @@
+
+language: python
+
+python:
+  - 2.7
+
+sudo: false
+
+virtualenv:
+
+before_install:
+  - export PYTHONPATH=$HOME/builds/dissemin/oabot/src
+  - export PIP_USE_MIRRORS=true
+
+install:
+  - pip install setuptools --upgrade
+  - pip install -r requirements.txt --upgrade
+  - pip install coveralls
+  - pip freeze
+
+script:
+  - cd src
+  - coverage run --source=oabot -m unittest tests
+
+after_success:
+  - coveralls
+
