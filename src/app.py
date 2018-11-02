@@ -96,6 +96,7 @@ def index():
     context = {
         'username' : flask.session.get('username', None),
         'success' : flask.request.args.get('success'),
+        'cache_size' : len(list_cache_contents()),
     }
     return flask.render_template("index.html", **context)
 
@@ -138,6 +139,7 @@ def process():
         raise InvalidUsage('Page title is required')
     force = flask.request.args.get('refresh') == 'true'
     context =  get_proposed_edits(page_name, force)
+    context['cache_size'] = len(list_cache_contents())
     username = flask.session.get('username', None)
     nb_edits = 0
     if username:
@@ -158,6 +160,7 @@ def review_one_edit():
         nb_edits = UserStats.get('en', username).nb_edits
     context['username'] = username
     context['nb_edits'] = nb_edits
+    context['cache_size'] = len(list_cache_contents())
     return flask.render_template('one-edit.html', **context)
 
 

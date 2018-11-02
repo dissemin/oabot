@@ -126,7 +126,11 @@
         {% endif %}
 
         <p><a href="{{ url_for('index') }}">&#8592; Home</a></p>
-        
+
+        <p class="center">
+            Current backlog: {{ cache_size }}
+        </p>
+
         <p><center>Logo CC BY SA Doug Dworkin</center></p>
     </body>
 </html>
