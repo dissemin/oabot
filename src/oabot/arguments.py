@@ -92,32 +92,37 @@ doi_argument = ArgumentMapping(
         'doi',
         r'https?://(dx\.)?doi\.org/([^ ]*)',
         group_id=2,
+        alternate_names=['DOI'],
         custom_access=True)
 
 hdl_argument = ArgumentMapping(
         'hdl',
         r'https?://hdl\.handle\.net/([^ ]*)',
+        alternate_names=['HDL'],
         custom_access=True)
 
 arxiv_argument = ArgumentMapping(
         'arxiv',
         r'https?://arxiv\.org/(abs|pdf)/(\d+\.[\d]+|[a-z-]+/\d+)(v\d+)?(\.pdf)?',
         group_id=2,
-        alternate_names=['eprint'],
+        alternate_names=['eprint','ARXIV','arXiv'],
         always_free=True)
 
 pmc_argument = ArgumentMapping(
         'pmc',
         r'https?://www\.ncbi\.nlm\.nih\.gov/pmc/articles/PMC([^/]*)/?',
+        alternate_names=['PMC'],
         always_free=True)
 citeseerx_argument = ArgumentMapping(
         'citeseerx',
         r'https?://citeseerx\.ist\.psu\.edu/viewdoc/(summary|download)\?doi=([0-9.]*)(&.*)?',
+        alternate_names=['CITESEERX'],
         group_id=2,
         always_free=True)
 url_argument =  UrlArgumentMapping(
         'url',
-        r'(.*)')
+        r'(.*)',
+        alternate_names=['URL'])
 
 template_arg_mappings = [
     doi_argument,
