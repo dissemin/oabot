@@ -244,7 +244,7 @@ def get_oa_link(paper):
         while resp is None:
             email = '{}@{}.in'.format('contact', 'dissem')
             try:
-                req = requests.get('https://api.oadoi.org/v2/:{}'.format(doi), {'email':email})
+                req = requests.get('http://api.unpaywall.org/v2/:{}'.format(doi), params={'email':email})
                 resp = req.json()
             except ValueError:
                 sleep(10)

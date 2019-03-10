@@ -18,15 +18,33 @@ domain_priority = {
 domain_blacklist = [
     'www.researchgate.net',
     # Publisher links are redundant with DOI links and often become inaccessible.
+    'aip.scitation.org',
+    'www.ams.org',
+    'annals.org',
+    'aem.asm.org',
+    'mcb.asm.org',
     'babel.hathitrust.org',
+    'www.bioone.org',
+    'www.bloodjournal.org',
+    'www.cell.com',
+    'doaj.org',
+    'dx.doi.org',
+    'doi.org',
+    'www.erudit.org',
     'iopscience.iop.org',
+    'www.iop.org',
     'www.jbc.org',
     'www.nature.com',
+    'precedings.nature.com',
     'academic.oup.com',
+    'pubs.rsc.org'
     'science.sciencemag.org',
     'www.sciencedirect.com',
     'link.springer.com',
     'www.tandfonline.com',
+    'www.thelancet.com',
+    'www.thieme-connect.de',
+    'journals.uchicago.edu',
     'onlinelibrary.wiley.com',
 ]
 
