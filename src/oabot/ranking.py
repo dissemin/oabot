@@ -18,32 +18,28 @@ domain_priority = {
 domain_blacklist = [
     'www.researchgate.net',
     # Publisher links are redundant with DOI links and often become inaccessible.
-    'aip.scitation.org',
-    'www.ams.org',
+    'ams.org',
     'annals.org',
-    'aem.asm.org',
-    'mcb.asm.org',
+    'asm.org',
     'babel.hathitrust.org',
-    'www.bioone.org',
-    'www.bloodjournal.org',
-    'www.cell.com',
+    'bioone.org',
+    'bloodjournal.org',
+    'cell.com',
     'doaj.org',
-    'dx.doi.org',
     'doi.org',
-    'www.erudit.org',
-    'iopscience.iop.org',
-    'www.iop.org',
-    'www.jbc.org',
-    'www.nature.com',
-    'precedings.nature.com',
-    'academic.oup.com',
-    'pubs.rsc.org'
-    'science.sciencemag.org',
-    'www.sciencedirect.com',
+    'erudit.org',
+    'iop.org',
+    'jbc.org',
+    'nature.com',
+    'oup.com',
+    'rsc.org',
+    'sciencemag.org',
+    'sciencedirect.com',
+    'scitation.org',
     'link.springer.com',
-    'www.tandfonline.com',
-    'www.thelancet.com',
-    'www.thieme-connect.de',
+    'tandfonline.com',
+    'thelancet.com',
+    'thieme-connect.de',
     'journals.uchicago.edu',
     'onlinelibrary.wiley.com',
 ]
@@ -61,7 +57,8 @@ def sort_links(urls):
     return sorted(urls, key=link_rank)
 
 def is_blacklisted(url):
-    if extract_domain(url) in domain_blacklist:
-        return True
-    else:
-        return False
+    subdomain = extract_domain(url)
+    for domain in domain_blacklist:
+        if domain in subdomain:
+            return True
+    return False
