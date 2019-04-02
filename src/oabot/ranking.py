@@ -33,6 +33,7 @@ domain_blacklist = [
     'biologists.org',
     'bioone.org',
     'bloodjournal.org',
+    'cambridge.org',
     'cell.com',
     'cshlp.org',
     'degruyter.com',
