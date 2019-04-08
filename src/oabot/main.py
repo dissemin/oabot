@@ -195,7 +195,8 @@ def get_dissemin_paper(reference):
         try:
             req = requests.post('https://dissem.in/api/query',
                                 json=args,
-                                headers={'User-Agent':OABOT_USER_AGENT})
+                                headers={'User-Agent':OABOT_USER_AGENT},
+                                timeout=10)
 
             resp = req.json()  
             paper_object = resp.get('paper', {})
@@ -244,7 +245,7 @@ def get_oa_link(paper):
         while resp is None:
             email = '{}@{}.in'.format('contact', 'dissem')
             try:
-                req = requests.get('http://api.unpaywall.org/v2/:{}'.format(doi), params={'email':email})
+                req = requests.get('http://api.unpaywall.org/v2/:{}'.format(doi), params={'email':email}, timeout=10)
                 resp = req.json()
             except ValueError:
                 sleep(10)
@@ -261,7 +262,7 @@ def get_oa_link(paper):
             # try to HEAD the url just to check it's still there
             try:
                 url = best_oa['url']
-                head = requests.head(url)
+                head = requests.head(url, timeout=10)
                 head.raise_for_status()
                 if not is_blacklisted(url):
                     return url
@@ -291,7 +292,8 @@ def get_page_over_api(page_name):
         'prop':'revisions',
         'rvprop':'content',
         'format':'json',},
-        headers={'User-Agent':OABOT_USER_AGENT})
+        headers={'User-Agent':OABOT_USER_AGENT},
+        timeout=10)
     r.raise_for_status()
     js = r.json()
     page = js.get('query',{}).get('pages',{}).values()[0]
