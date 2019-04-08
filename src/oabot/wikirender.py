@@ -13,7 +13,8 @@ def wikirender(eval_ctx, wikicode):
         {'action':'parse',
          'text':wikicode,
          'format':'json',
-        })
+        },
+        timeout=30)
     result = r.json().get('parse',{}).get('text', {}).get('*','')
 
     result = result.replace('href="/wiki/',
