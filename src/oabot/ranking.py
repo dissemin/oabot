@@ -18,34 +18,63 @@ domain_priority = {
 domain_blacklist = [
     'www.researchgate.net',
     # Publisher links are redundant with DOI links and often become inaccessible.
-    'aip.scitation.org',
-    'www.ams.org',
+    'aacrjournals.org',
+    'aanda.org',
+    'aappublications.org',
+    'ahajournals.org',
+    'amjbot.org',
+    'ams.org',
     'annals.org',
-    'aem.asm.org',
-    'mcb.asm.org',
+    'annualreviews.org',
+    'asm.org',
+    'aspetjournals.org',
     'babel.hathitrust.org',
-    'www.bioone.org',
-    'www.bloodjournal.org',
-    'www.cell.com',
+    'biochemsoctrans.org',
+    'biologists.org',
+    'bioone.org',
+    'bloodjournal.org',
+    'cambridge.org',
+    'cell.com',
+    'cshlp.org',
+    'degruyter.com',
+    'diabetesjournals.org',
+    'dl.acm.org',
     'doaj.org',
-    'dx.doi.org',
     'doi.org',
-    'www.erudit.org',
-    'iopscience.iop.org',
-    'www.iop.org',
-    'www.jbc.org',
-    'www.nature.com',
-    'precedings.nature.com',
-    'academic.oup.com',
-    'pubs.rsc.org'
-    'science.sciencemag.org',
-    'www.sciencedirect.com',
-    'link.springer.com',
-    'www.tandfonline.com',
-    'www.thelancet.com',
-    'www.thieme-connect.de',
+    'ersjournals.com',
+    'erudit.org',
+    'iop.org',
+    'jamanetwork.com',
+    'jbc.org',
+    'jimmunol.org',
+    'jneurosci.org',
+    'journals.ametsoc.org',
+    'journals.lww.com',
+    'journals.sagepub.com',
     'journals.uchicago.edu',
+    'jwildlifedis.org',
+    'karger.com',
+    'link.aps.org',
+    'link.springer.com',
+    'microbiologyresearch.org',
+    'nature.com',
+    'nejm.org',
+    'neurology.org',
+    'nrcresearchpress.com',
     'onlinelibrary.wiley.com',
+    'oup.com',
+    'physiology.org',
+    'pubs.acs.org',
+    'pubs.aeaweb.org',
+    'reproduction-online.org',
+    'royalsocietypublishing.org',
+    'rsc.org',
+    'sciencedirect.com',
+    'sciencemag.org',
+    'scitation.org',
+    'tandfonline.com',
+    'thelancet.com',
+    'thieme-connect.de',
 ]
 
 domain_re = re.compile(r'\s*(https?|ftp)://(([a-zA-Z0-9-_]+\.)+[a-zA-Z]+)(:[0-9]+)?/?')
@@ -63,7 +92,8 @@ def sort_links(urls):
 def is_blacklisted(url):
     if '/accesoRestringido.pdf' in url:
         return True
-    if extract_domain(url) in domain_blacklist:
-        return True
-    else:
-        return False
+    subdomain = extract_domain(url)
+    for domain in domain_blacklist:
+        if domain in subdomain:
+            return True
+    return False

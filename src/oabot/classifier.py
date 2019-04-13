@@ -22,7 +22,7 @@ class AcademicPaperFilter(object):
         """
         try:
             r = requests.get(url, headers={'User-Agent':
-                    OABOT_USER_AGENT}, verify=False)
+                    OABOT_USER_AGENT}, verify=False, timeout=10)
             return self.check_nb_pages(r.content)
         except requests.exceptions.RequestException as e:
             print e
