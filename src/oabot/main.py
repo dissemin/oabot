@@ -2,6 +2,10 @@
 from __future__ import unicode_literals
 from wikiciteparser.parser import parse_citation_template
 from urllib import urlencode
+try:
+    import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 import mwparserfromhell
 import requests
 import json
@@ -257,6 +261,9 @@ def get_oa_link(paper):
             try:
                 head = requests.head(url, timeout=10)
                 head.raise_for_status()
+                if head.status_code < 400 and urlparse(head.headers['Location']).path == '/':
+                    # Redirects to main page: fake status code, should be not found
+                    continue
                 if not is_blacklisted(url):
                     return url
             except requests.exceptions.RequestException:

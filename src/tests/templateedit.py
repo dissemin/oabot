@@ -29,6 +29,13 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
         """)
         self.assertEquals("pmc=3731883", edit.proposed_change)
 
+    # Test a dead URL
+    def test_add_naldc(self):
+        edit = self.propose_change("""
+{{cite journal|doi=10.1016/j.chroma.2005.05.009|pmid=16007998|title=Determination of citrulline in watermelon rind|journal=Journal of Chromatography A|volume=1078|issue=1–2|pages=196–200|year=2005|last1=Rimando|first1=Agnes M.}}
+        """)
+        self.assertNotEquals("url=https://naldc.nal.usda.gov/naldc/download.xhtml?id=42375&content=PDF", edit.proposed_change)
+
     def test_uppercase(self):
         edit = self.propose_change("""
 {{Cite journal|last=Prpić|first=John|last2=Shukla|first2=Prashant P.|last3=Kietzmann|first3=Jan H.|last4=McCarthy|first4=Ian P.|date=2015-01-01|title=How to work a crowd: Developing crowd capital through
