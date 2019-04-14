@@ -9,7 +9,7 @@ rg_re = re.compile('(https?://www\.researchgate\.net/)(.*)(publication/[0-9]*)_.
 domain_priority = {
         'doi.org': 50,                # Links to the publisher's version in most of the cases
         'dx.doi.org': 50,                # Links to the publisher's version in most of the cases
-        'ncbi.nlm.nih.gov': 40, # PubMed Central: official version too
+        'ncbi.nlm.nih.gov': 40, # PubMed or PubMed Central: official version too
         'arxiv.org' : 30,        # Curated repository
         'hdl.handle.net': 20,        # Institutional repositories
         'citeseerx.ist.psu.edu': 10, # Preprints crawled on the web
@@ -84,6 +84,8 @@ def extract_domain(url):
         return match.group(2)
 
 def link_rank(url):
+    if 'www.ncbi.nlm.nih.gov/pubmed/' in url or 'europepmc.org/abstract/med/' in url:
+        return 20
     return (- domain_priority.get(extract_domain(url), 0))
 
 def sort_links(urls):
