@@ -21,6 +21,9 @@ class ArgumentTests(unittest.TestCase):
     def test_pmc(self):
         self.assertEquals('5739466', pmc_argument.extract('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5739466/'))
 
+    def test_eupmc(self):
+        self.assertEquals('5739466', pmc_argument.extract('https://europepmc.org/articles/pmc5739466'))
+
     def test_citeseerx(self):
         self.assertEquals('10.1.1.492.3416', citeseerx_argument.extract('http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.492.3416'))
         self.assertEquals('10.1.1.492.3416', citeseerx_argument.extract('http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.492.3416&rep=rep1&type=pdf'))

@@ -21,6 +21,14 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
         """)
         self.assertEquals("arxiv=1702.04214", edit.proposed_change)
 
+    # Test ability to find the PMC ID in case with multiple issues:
+    # Dissemin returns 1 dead publisher URL, 3 PMC URLs and 1 PMID URL
+    def test_add_pmc(self):
+        edit = self.propose_change("""
+{{cite journal|doi=10.1016/j.bushor.2014.09.005|title=How to work a crowd: Developing crowd capital through crowdsourcing|journal=Business Horizons|volume=58|pages=77–85|year=2015|last1=Prpić|first1=John}}
+        """)
+        self.assertEquals("pmc=3731883", edit.proposed_change)
+
     def test_uppercase(self):
         edit = self.propose_change("""
 {{Cite journal|last=Prpić|first=John|last2=Shukla|first2=Prashant P.|last3=Kietzmann|first3=Jan H.|last4=McCarthy|first4=Ian P.|date=2015-01-01|title=How to work a crowd: Developing crowd capital through
