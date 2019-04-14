@@ -1,7 +1,10 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
 from wikiciteparser.parser import parse_citation_template
-from urllib import urlencode
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
 import mwparserfromhell
 import requests
 import json
