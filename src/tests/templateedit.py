@@ -25,7 +25,8 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
     # Dissemin returns 1 dead publisher URL, 3 PMC URLs and 1 PMID URL
     def test_add_pmc(self):
         edit = self.propose_change("""
-{{cite journal|doi=10.1016/j.bushor.2014.09.005|title=How to work a crowd: Developing crowd capital through crowdsourcing|journal=Business Horizons|volume=58|pages=77–85|year=2015|last1=Prpić|first1=John}}
+{{Cite journal|doi=10.4103/0973-7847.112853|title=Phytochemistry and medicinal properties of Phaleria macrocarpa (Scheff.) Boerl. Extracts|journal=Pharmacognosy Reviews|volume=7|issue=13|pages=73–80|year=2013|last1=Altaf|first1=Rabia}}
+
         """)
         self.assertEquals("pmc=3731883", edit.proposed_change)
 
