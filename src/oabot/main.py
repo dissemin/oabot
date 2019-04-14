@@ -221,21 +221,11 @@ def get_oa_link(paper):
     if doi is not None:
         doi = "/".join(doi.split("/")[-2:])
 
-    # Dissemin's full text detection is not always accurate, so
-    # we manually go through each url for the paper and check
-    # if it is free to read.
-
-    # if we want more accurate (but slower) results
-    # we can check availability manually:
-
-    candidate_urls = sort_links([
+    # Get all the URLs which Dissemin considers to be full-text links
+    candidate_urls = ([
         record.get('pdf_url') for record in
         paper.get('records',[])  if record.get('pdf_url')
     ])
-    for url in sort_links(candidate_urls):
-        if url:
-            if not is_blacklisted(url):
-                return url
 
     # then, try OAdoi
     # (OAdoi finds full texts that dissemin does not, so it's always good to have!)
@@ -251,23 +241,26 @@ def get_oa_link(paper):
                 sleep(10)
                 attempts += 1
                 if attempts >= 3:
-                    return None
+                    break
                 else:
                     continue
 
         best_oa = (resp.get('best_oa_location') or {})
-        if best_oa.get('host_type') == 'publisher':
-            return None
-        if best_oa.get('url'):
-            # try to HEAD the url just to check it's still there
+        if best_oa.get('url') and best_oa.get('host_type') != 'publisher':
+            candidate_urls += best_oa['url']
+
+    # Full text detection is not always accurate, so we try to pick
+    # the URL which is most useful for citation templates and we
+    # doule check that it's still up.
+    for url in sort_links(candidate_urls):
+        if url:
             try:
-                url = best_oa['url']
                 head = requests.head(url, timeout=10)
                 head.raise_for_status()
                 if not is_blacklisted(url):
                     return url
             except requests.exceptions.RequestException:
-                return None
+                continue
 
 def add_oa_links_in_references(text, page):
     """
