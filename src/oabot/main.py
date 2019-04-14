@@ -261,7 +261,7 @@ def get_oa_link(paper):
             try:
                 head = requests.head(url, timeout=10)
                 head.raise_for_status()
-                if head.status_code < 400 and urlparse.urlparse(head.headers['Location']).path == '/':
+                if head.status_code < 400 and 'Location' in head.headers and urlparse.urlparse(head.headers['Location']).path == '/':
                     # Redirects to main page: fake status code, should be not found
                     continue
                 if not is_blacklisted(url):
