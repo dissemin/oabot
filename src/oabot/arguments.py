@@ -113,6 +113,21 @@ pmc_argument = ArgumentMapping(
         r'https?://www\.ncbi\.nlm\.nih\.gov/pmc/articles/PMC([^/]*)/?',
         alternate_names=['PMC'],
         always_free=True)
+eupmc_argument = ArgumentMapping(
+        'pmc',
+        r'https?://europepmc.org/articles/pmc([0-9]+)[^0-9]*',
+        alternate_names=['PMC'],
+        always_free=True)
+pmid_argument = ArgumentMapping(
+        'pmid',
+        r'https?://www\.ncbi\.nlm\.nih\.gov/pubmed/([^/]*)[^0-9]*',
+        alternate_names=['PMID'],
+        custom_access=True)
+eupmid_argument = ArgumentMapping(
+        'pmid',
+        r'https?://europepmc.org/abstract/med/([0-9]+)[^0-9]*',
+        alternate_names=['PMID'],
+        custom_access=True)
 citeseerx_argument = ArgumentMapping(
         'citeseerx',
         r'https?://citeseerx\.ist\.psu\.edu/viewdoc/(summary|download)\?doi=([0-9.]*)(&.*)?',
@@ -129,6 +144,9 @@ template_arg_mappings = [
     hdl_argument,
     arxiv_argument,
     pmc_argument,
+    eupmc_argument,
+    pmid_argument,
+    eupmid_argument,
     citeseerx_argument,
     url_argument,
 ]
