@@ -241,6 +241,7 @@ def get_oa_link(paper):
             try:
                 req = requests.get('http://api.unpaywall.org/v2/:{}'.format(doi), params={'email':email}, timeout=10)
                 resp = req.json()
+                sleep(0.1)
             except ValueError:
                 sleep(10)
                 attempts += 1
