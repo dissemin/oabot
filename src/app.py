@@ -172,9 +172,9 @@ def from_cache_name(cache_fname):
     return cache_fname[:-5].replace('_',' ').replace('#','/')
 
 def list_cache_contents(directory='cache/'):
-    for (_, _, fnames) in os.walk(directory):
-        fnames = list(filter(lambda fn: fn.endswith('.json'), fnames))
-        return map(from_cache_name, fnames)
+    for fname in in os.listdir(directory):
+        if fname.endswith('.json'):
+            yield from_cache_name(fname)
 
 def refresh_whole_cache():
     for page_name in list_cache_contents():
@@ -188,22 +188,18 @@ def get_random_edit():
         return flask.redirect(flask.url_for('login', next_url=flask.url_for('get_random_edit')))
 
     # Then, redirect to a random cached edit
-    cached_pages = list_cache_contents()
-    if not cached_pages:
-        return flask.redirect(flask.url_for('index'))
-    idx = randint(0,len(cached_pages)-1)
-    page_name = cached_pages[idx]
-    cache_fname = "cache/"+to_cache_name(page_name)
-    with open(cache_fname, 'r') as f:
-        page_json = json.load(f)
+    for page_name in list_cache_contents():
+        cache_fname = "cache/"+to_cache_name(page_name)
+        with open(cache_fname, 'r') as f:
+            page_json = json.load(f)
 
-    proposed_edits = page_json.get('proposed_edits', [])
-    proposed_edits = [template_edit for template_edit in proposed_edits if (template_edit['classification'] != 'rejected')]
-    if proposed_edits:
-        edit_idx = randint(0, len(proposed_edits)-1)
-        orig_hash = proposed_edits[edit_idx]['orig_hash']
-        return flask.redirect(
-            flask.url_for('review_one_edit', name=cached_pages[idx], edit=orig_hash))
+        proposed_edits = page_json.get('proposed_edits', [])
+        proposed_edits = [template_edit for template_edit in proposed_edits if (template_edit['classification'] != 'rejected')]
+        if proposed_edits:
+            edit_idx = randint(0, len(proposed_edits)-1)
+            orig_hash = proposed_edits[edit_idx]['orig_hash']
+            return flask.redirect(
+                flask.url_for('review_one_edit', name=cached_pages[idx], edit=orig_hash))
 
     return flask.redirect(flask.url_for('index'))
 
