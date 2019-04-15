@@ -92,6 +92,8 @@ def sort_links(urls):
     return sorted(urls, key=link_rank)
 
 def is_blacklisted(url):
+    if '/accesoRestringido.pdf' in url:
+        return True
     subdomain = extract_domain(url)
     for domain in domain_blacklist:
         if domain in subdomain:
