@@ -172,7 +172,7 @@ def from_cache_name(cache_fname):
     return cache_fname[:-5].replace('_',' ').replace('#','/')
 
 def list_cache_contents(directory='cache/'):
-    for fname in in os.listdir(directory):
+    for fname in os.listdir(directory):
         if fname.endswith('.json'):
             yield from_cache_name(fname)
 
