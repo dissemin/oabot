@@ -191,7 +191,7 @@ def get_random_edit():
     for page_name in list_cache_contents():
         # Randomly skip or pick the current one, about 1 % chance.
         if random() > 0.01:
-            break
+            continue
 
         cache_fname = "cache/"+to_cache_name(page_name)
         with open(cache_fname, 'r') as f:
