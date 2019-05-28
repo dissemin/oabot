@@ -199,7 +199,7 @@ def get_random_edit():
             edit_idx = randint(0, len(proposed_edits)-1)
             orig_hash = proposed_edits[edit_idx]['orig_hash']
             return flask.redirect(
-                flask.url_for('review_one_edit', name=cached_pages[idx], edit=orig_hash))
+                flask.url_for('review_one_edit', name=page_name, edit=orig_hash))
 
     return flask.redirect(flask.url_for('index'))
 
