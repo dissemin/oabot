@@ -33,7 +33,7 @@ import codecs
 import re
 import datetime
 import jinja2
-from random import randint
+from random import randint, random
 from requests_oauthlib import OAuth1
 import mwparserfromhell
 from difflib import HtmlDiff
@@ -189,6 +189,10 @@ def get_random_edit():
 
     # Then, redirect to a random cached edit
     for page_name in list_cache_contents():
+        # Randomly skip or pick the current one, about 1 % chance.
+        if random() > 0.01:
+            break
+
         cache_fname = "cache/"+to_cache_name(page_name)
         with open(cache_fname, 'r') as f:
             page_json = json.load(f)
