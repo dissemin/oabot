@@ -12,3 +12,4 @@ sqlalchemy
 configparser
 mysql
 pyOpenSSL
+python-Levenshtein

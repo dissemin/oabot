@@ -15,6 +15,7 @@ class TemplateEditTests(unittest.TestCase):
             return edit
 
     def test_add_arxiv(self):
+        # Dissemin has the first two authors in reversed order but Unpaywall still finds it
         edit = self.propose_change("""
 {{Cite journal|last=Prpić|first=John|last2=Shukla|first2=Prashant P.|last3=Kietzmann|first3=Jan H.|last4=McCarthy|first4=Ian P.|date=2015-01-01|title=How to work a crowd: Developing crowd capital through
 crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S0007681314001438|journal=Business Horizons|volume=58|issue=1|pages=77–85|doi=10.1016/j.bushor.2014.09.005}}
@@ -30,6 +31,14 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
         """)
         self.assertEquals("pmc=3731883", edit.proposed_change)
 
+    # Test a title and DOI which is not OA and on Dissemin is
+    # merged with many similar ones, related but not the same.
+    def test_similartitle(self):
+        edit = self.propose_change("""
+{{cite journal  |vauthors=Marsh SG, Albert ED, Bodmer WF, etal | title = Nomenclature for factors of the HLA system, 2004 | journal = Tissue Antigens | volume = 65 | issue = 4 | pages = 301–69 | year = 2005 | pmid = 15787720 | doi = 10.1111/j.1399-0039.2005.00379.x }}
+        """)
+        self.assertEquals("", edit.proposed_change)
+
     # Test a dead URL
     def test_add_naldc(self):
         edit = self.propose_change("""
@@ -41,6 +50,13 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
         edit = self.propose_change("""
 {{Cite journal|last=Prpić|first=John|last2=Shukla|first2=Prashant P.|last3=Kietzmann|first3=Jan H.|last4=McCarthy|first4=Ian P.|date=2015-01-01|title=How to work a crowd: Developing crowd capital through
 crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S0007681314001438|journal=Business Horizons|volume=58|issue=1|pages=77–85|doi=10.1016/j.bushor.2014.09.005|ARXIV=1702.04214}}
+        """)
+        self.assertEquals('', edit.proposed_change)
+
+    # Test a book which is not open access but has a review which is
+    def test_book(self):
+        edit = self.propose_change("""
+{{Citation |last=Kandel |first=Eric R. |year=2012 |title=The Age of Insight: The Quest to Understand the Unconscious in Art, Mind, and Brain, from Vienna 1900 to the Present |publisher=Random House|location=New York |isbn=978-1-4000-6871-5}}"
         """)
         self.assertEquals('', edit.proposed_change)
 
