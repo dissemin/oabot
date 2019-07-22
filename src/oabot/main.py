@@ -111,7 +111,8 @@ class TemplateEdit(object):
         dissemin_paper_object = get_dissemin_paper(reference)
 
         # Otherwise, try to get a free link
-        link = get_oa_link(dissemin_paper_object)
+        doi = reference.get('ID_list', {}).get('DOI')
+        link = get_oa_link(paper=dissemin_paper_object, doi=doi)
         if not link:
             self.classification = 'not_found'
             return
@@ -202,7 +203,7 @@ def get_dissemin_paper(reference):
                                 headers={'User-Agent':OABOT_USER_AGENT},
                                 timeout=10)
 
-            resp = req.json()  
+            resp = req.json()
             paper_object = resp.get('paper', {})
 
             return paper_object
@@ -219,20 +220,28 @@ def get_paper_values(paper, attribute):
     
     return None
 
-def get_oa_link(paper):
+def get_oa_link(paper, doi=None):
 
-    doi = paper.get('doi')
-    if doi is not None:
-        doi = "/".join(doi.split("/")[-2:])
+    if not doi:
+        doi = paper.get('doi')
+        if doi is not None:
+            doi = "/".join(doi.split("/")[-2:])
 
-    # Get all the URLs which Dissemin considers to be full-text links
-    candidate_urls = ([
-        record.get('pdf_url') for record in
-        paper.get('records',[])  if record.get('pdf_url')
-    ])
+    dissemin_dois = set([ record.get('doi') for record in
+                         paper.get('records',[]) if record.get('doi')  ])
+    if len(dissemin_dois) > 2:
+        # Do not use Dissemin suggestions: many DOIs suggest a risk of overmerged
+        # records. https://github.com/dissemin/dissemin/issues/512
+        candidate_urls = []
+    else:
+        # Get all the URLs which Dissemin considers to be full-text links
+        candidate_urls = ([
+            record.get('pdf_url') for record in
+            paper.get('records',[])  if record.get('pdf_url')
+        ])
 
-    # then, try OAdoi
-    # (OAdoi finds full texts that dissemin does not, so it's always good to have!)
+    # Then, try OAdoi/Unpaywall
+    # (It finds full texts that Dissemin does not, so it's always good to have!)
     if doi:
         resp = None
         attempts = 0
@@ -250,9 +259,9 @@ def get_oa_link(paper):
                 else:
                     continue
 
-        best_oa = (resp.get('best_oa_location') or {})
-        if best_oa.get('url') and best_oa.get('host_type') != 'publisher':
-            candidate_urls += best_oa['url']
+        for oa_location in resp.get('oa_locations') or []:
+            if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
+                candidate_urls += oa_location['url']
 
     # Full text detection is not always accurate, so we try to pick
     # the URL which is most useful for citation templates and we
