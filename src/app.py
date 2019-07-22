@@ -296,6 +296,11 @@ def perform_edit():
     # Perform each edit
     new_text, change_made = make_new_wikicode(text, data, page_name)
 
+    # Remove the cache
+    cache_fname = "cache/"+to_cache_name(page_name)
+    if os.path.isfile(cache_fname):
+        os.remove(cache_fname)
+
     # Save the page
     if change_made:
         access_token = flask.session.get('access_token', None)
@@ -304,11 +309,6 @@ def perform_edit():
             'en',
             flask.session.get('username', None),
             1, 1)
-
-        # Remove the cache
-        cache_fname = "cache/"+to_cache_name(page_name)
-        if os.path.isfile(cache_fname):
-            os.remove(cache_fname)
 
         return flask.redirect(flask.url_for('get_random_edit'))
     else:
