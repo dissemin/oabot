@@ -259,12 +259,15 @@ def make_new_wikicode(text, form_data, page_name):
         proposed_addition = form_data.get(edit.orig_hash)
         user_checked = form_data.get(edit.orig_hash+'-addlink')
         if proposed_addition and user_checked == 'checked':
-            try:
-                edit.update_template(proposed_addition)
-                change_made = True
-            except ValueError:
-                app.logger.exception('update_template failed on {}'.format(page_name))
-                pass # TODO report to the user
+            # Go through one or more suggestions separated by pipe
+            for proposed_parameter in proposed_addition.split("|"):
+                try:
+                    # Get the new wikitext for the template with this parameter added
+                    edit.update_template(proposed_parameter)
+                    change_made = True
+                except ValueError:
+                    app.logger.exception('update_template failed on {}'.format(page_name))
+                    pass # TODO report to the user
     return unicode(wikicode), change_made
 
 

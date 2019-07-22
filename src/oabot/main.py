@@ -155,6 +155,8 @@ class TemplateEdit(object):
                 self.proposed_change = 'id={{%s|%s}}' % (argmap.name,match)
             else:
                 self.proposed_change = '%s=%s' % (argmap.name,match)
+                if argmap.name == 'hdl':
+                    self.proposed_change += "|hdl-access=free"
             break
 
     def update_template(self, change):
