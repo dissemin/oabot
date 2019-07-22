@@ -24,6 +24,7 @@ from ondiskcache import OnDiskCache
 from classifier import AcademicPaperFilter
 import md5
 from time import sleep
+from Levenshtein import ratio
 
 urls_cache = OnDiskCache('urls_cache.pkl')
 paper_filter = AcademicPaperFilter()
@@ -205,8 +206,16 @@ def get_dissemin_paper(reference):
 
             resp = req.json()
             paper_object = resp.get('paper', {})
+            if not paper_object:
+                return {}
 
-            return paper_object
+            paper_year = paper_object.get("date", "")[:4]
+            paper_authorlast = paper_object.get("authors")[0].get("name", {}).get("last", "")
+            if date[:4] == paper_year and ratio(authors[0].get("last", ""), paper_authorlast) > 0.75:
+                return paper_object
+            else:
+                # Fails a basic author/date check, ignore Dissemin record
+                return {}
         except (ValueError, requests.exceptions.RequestException) as e:
             sleep(5)
             continue
@@ -222,7 +231,7 @@ def get_paper_values(paper, attribute):
 
 def get_oa_link(paper, doi=None):
 
-    if not doi:
+    if paper and not doi:
         doi = paper.get('doi')
         if doi is not None:
             doi = "/".join(doi.split("/")[-2:])
@@ -261,7 +270,7 @@ def get_oa_link(paper, doi=None):
 
         for oa_location in resp.get('oa_locations') or []:
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
-                candidate_urls += oa_location['url']
+                candidate_urls.append(oa_location['url'])
 
     # Full text detection is not always accurate, so we try to pick
     # the URL which is most useful for citation templates and we
