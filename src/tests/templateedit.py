@@ -46,6 +46,13 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
         """)
         self.assertNotEquals("url=https://naldc.nal.usda.gov/naldc/download.xhtml?id=42375&content=PDF", edit.proposed_change)
 
+    # Test add handle and hdl-access
+    def test_add_hdl(self):
+        edit = self.propose_change("""
+{{cite journal|doi=10.1006/mcpr.2001.0377|pmid=11851384|title=C306A single nucleotide polymorphism in the human CEBPD gene that maps at 8p11.1–p11.2|journal=Molecular and Cellular Probes|volume=15|issue=6|pages=395–397|year=2002|last1=Angeloni|first1=Debora|last2=Lee|first2=Joshua D.}}
+        """)
+        self.assertEquals("hdl=11382/3170|hdl-access=free", edit.proposed_change)
+
     def test_uppercase(self):
         edit = self.propose_change("""
 {{Cite journal|last=Prpić|first=John|last2=Shukla|first2=Prashant P.|last3=Kietzmann|first3=Jan H.|last4=McCarthy|first4=Ian P.|date=2015-01-01|title=How to work a crowd: Developing crowd capital through
