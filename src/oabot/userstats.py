@@ -51,12 +51,14 @@ class UserStats(Base):
         instance.nb_edits += edits
         instance.nb_links += links
         session.commit()
+        session.close()
 
 
     @classmethod
     def get_leaderboard(cls):
         session = get_session()()
         stats = session.query(cls).filter(cls.nb_edits != 0).order_by(cls.nb_edits)
+        session.close()
         return reversed(list(stats))
 
     @classmethod
@@ -71,6 +73,7 @@ class UserStats(Base):
                 instance.nb_edits = value
                 instance.nb_links = value
         session.commit()
+        session.close()
 
     @classmethod
     def get(cls, wiki, user):
@@ -78,6 +81,7 @@ class UserStats(Base):
         instance = session.query(cls).filter_by(wiki=wiki, user_name=user).first()
         if not instance:
             instance = cls(wiki=wiki, user_name=user, nb_edits=0, nb_links=0)
+        session.close()
         return instance
 
     def unicode_name(self):
