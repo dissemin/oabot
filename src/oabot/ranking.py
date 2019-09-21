@@ -48,6 +48,7 @@ domain_blacklist = [
     'ersjournals.com',
     'erudit.org',
     'euppublishing.com',
+    'fasebj.com',
     'futuremedicine.com',
     'healio.com',
     'healthaffairs.org',
@@ -88,6 +89,7 @@ domain_blacklist = [
     'plosone.org',
     'pubs.acs.org',
     'pubs.aeaweb.org',
+    'rcpsych.org',
     'reproduction-online.org',
     'royalsocietypublishing.org',
     'rsc.org',
@@ -99,6 +101,9 @@ domain_blacklist = [
     'tandfonline.com',
     'thelancet.com',
     'thieme-connect.de',
+    'ucpress.edu',
+    # Broken repositories
+    'library.tue.nl',
 ]
 
 domain_re = re.compile(r'\s*(https?|ftp)://(([a-zA-Z0-9-_]+\.)+[a-zA-Z]+)(:[0-9]+)?/?')
