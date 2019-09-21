@@ -66,7 +66,7 @@ class TemplateEdit(object):
             'issn': self.issn,
         }
 
-    def propose_change(self):
+    def propose_change(self, only_doi=False):
         """
         Fetches open urls for that template and proposes a change
         """
@@ -106,11 +106,19 @@ class TemplateEdit(object):
             self.classification = 'registration_subscription'
             # return
 
-        dissemin_paper_object = get_dissemin_paper(reference)
+        if only_doi:
+            dissemin_paper_object = {}
+        else:
+            dissemin_paper_object = get_dissemin_paper(reference)
 
         # Otherwise, try to get a free link
         doi = reference.get('ID_list', {}).get('DOI')
-        link = get_oa_link(paper=dissemin_paper_object, doi=doi)
+        link = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
+        if link is False:
+            self.classification = 'already_open'
+            # TODO add when ready to run as bot
+            # return "doi-access=free"
+            return
         if not link:
             self.classification = 'not_found'
             return
@@ -118,8 +126,10 @@ class TemplateEdit(object):
         # We found an OA link!
         self.proposed_link = link
 
-        self.proposed_link_policy = get_paper_values(dissemin_paper_object, 'policy')
-        self.issn = get_paper_values(dissemin_paper_object, 'issn')
+        if dissemin_paper_object:
+            self.proposed_link_policy = get_paper_values(dissemin_paper_object, 'policy')
+            # TODO: fetch from Unpaywall?
+            self.issn = get_paper_values(dissemin_paper_object, 'issn')
 
         # Try to match it with an argument
         argument_found = False
@@ -228,7 +238,7 @@ def get_paper_values(paper, attribute):
     
     return None
 
-def get_oa_link(paper, doi=None):
+def get_oa_link(paper, doi=None, only_unpaywall=True):
 
     if paper and not doi:
         doi = paper.get('doi')
@@ -267,6 +277,16 @@ def get_oa_link(paper, doi=None):
                 else:
                     continue
 
+        if only_unpaywall:
+            # Just rely on whichever URL Unpaywall considers the best location.
+            if not resp['is_oa']:
+                return None
+            if resp['best_oa_location']['host_type'] == 'publisher':
+                # We're coming from the DOI so if anything add doi-access=free
+                return False
+            else:
+                return resp['best_oa_location']['url']
+
         for oa_location in resp.get('oa_locations') or []:
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
                 candidate_urls.append(oa_location['url'])
@@ -287,7 +307,7 @@ def get_oa_link(paper, doi=None):
             except requests.exceptions.RequestException:
                 continue
 
-def add_oa_links_in_references(text, page):
+def add_oa_links_in_references(text, page, only_doi=False):
     """
     Main function of the bot.
 
@@ -300,7 +320,7 @@ def add_oa_links_in_references(text, page):
     for index, template in enumerate(wikicode.filter_templates()):
         edit = TemplateEdit(template, page)
         edit.index = index
-        edit.propose_change()
+        edit.propose_change(only_doi)
         yield edit
 
 def get_page_over_api(page_name):

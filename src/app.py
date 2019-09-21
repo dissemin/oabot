@@ -209,14 +209,14 @@ def get_random_edit():
 
 redirect_re = re.compile(r'#REDIRECT *\[\[(.*)\]\]')
 
-def get_proposed_edits(page_name, force, follow_redirects=True):
+def get_proposed_edits(page_name, force, follow_redirects=True, only_doi=False):
     # Get the page
     text = main.get_page_over_api(page_name)
 
     # See if it's a redirect
     redir = redirect_re.match(text)
     if redir:
-        return get_proposed_edits(redir.group(1), force, False)
+        return get_proposed_edits(redir.group(1), force, False, only_doi)
 
     # See if we already have it cached
     cache_fname = "cache/"+to_cache_name(page_name)
