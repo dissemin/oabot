@@ -53,9 +53,6 @@ class TemplateEdit(object):
         self.proposed_link_policy = None
         self.issn = None
 
-    def is_https(self):
-        return self.proposed_link and self.proposed_link.startswith('https')
-
     def json(self):
         return {
             'orig_string': self.orig_string,
