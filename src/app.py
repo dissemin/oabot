@@ -225,7 +225,7 @@ def get_proposed_edits(page_name, force, follow_redirects=True, only_doi=False):
             return json.load(f)
 
     # Otherwise, process it
-    all_templates = main.add_oa_links_in_references(text, page_name)
+    all_templates = main.add_oa_links_in_references(text, page_name, only_doi)
     filtered = list(filter(lambda e: e.proposed_change, all_templates))
     context = {
     'proposed_edits': [change.json() for change in filtered],
