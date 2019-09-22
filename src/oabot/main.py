@@ -285,7 +285,9 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
                 # We're coming from the DOI so if anything add doi-access=free
                 return False
             else:
-                return resp['best_oa_location']['url']
+                url = resp['best_oa_location']['url']
+                if not is_blacklisted(url):
+                    return url
 
         for oa_location in resp.get('oa_locations') or []:
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
