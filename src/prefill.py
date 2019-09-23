@@ -31,7 +31,7 @@ def prefill_cache(max_pages=5000, starting_page=None):
         except:
             sleep(60)
         count += 1
-        sleep(0.5)
+        sleep(1)
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
