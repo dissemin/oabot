@@ -68,11 +68,21 @@ class ArgumentMapping(object):
                     )
                 )
 
+    def normalise(self, url):
+        """
+        Convert the URL into an equivalent which is more suitable for comparison and ranks.
+        """
+        if 'babel.hathitrust.org' in url:
+            return re.sub(r"https://babel\.hathitrust\.org/cgi/imgsrv/download/pdf\?id=([a-z]+\.[0-9]+).*",
+                          r"https://hdl.handle.net/2027/\1",
+                          url)
+        return url
 
     def extract(self, url):
         """
         Extract the parameter value from the URL, or None if it does not match
         """
+        url = self.normalise(url)
         match = self.regex.match(url)
         if not match:
             return None
