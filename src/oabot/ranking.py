@@ -102,9 +102,11 @@ domain_blacklist = [
     'thelancet.com',
     'thieme-connect.de',
     'ucpress.edu',
-    # Broken repositories
+    # Repositories with too many false positives
     'library.tue.nl',
     'orbit.dtu.dk',
+    'pangaea.de',
+    'scielo.br',
 ]
 
 domain_re = re.compile(r'\s*(https?|ftp)://(([a-zA-Z0-9-_]+\.)+[a-zA-Z]+)(:[0-9]+)?/?')
