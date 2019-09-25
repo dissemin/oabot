@@ -104,6 +104,7 @@ domain_blacklist = [
     'ucpress.edu',
     # Broken repositories
     'library.tue.nl',
+    'orbit.dtu.dk',
 ]
 
 domain_re = re.compile(r'\s*(https?|ftp)://(([a-zA-Z0-9-_]+\.)+[a-zA-Z]+)(:[0-9]+)?/?')
