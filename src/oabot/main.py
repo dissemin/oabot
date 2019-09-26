@@ -152,7 +152,9 @@ class TemplateEdit(object):
                 #else:
 
                 self.classification = 'already_present'
-                # don't change anything
+                if argmap.name == 'hdl':
+                    self.proposed_change = "hdl-access=free"
+                # don't change anything else
                 break
 
             # If the parameter is not present yet, add it
@@ -165,6 +167,14 @@ class TemplateEdit(object):
                 if argmap.name == 'hdl':
                     self.proposed_change += "|hdl-access=free"
             break
+
+        # If we are going to add an URL, check it's not probably redundant
+        if self.proposed_change.startswith('url='):
+            hdl = get_value(self.template, 'hdl')
+            if hdl and hdl in self.proposed_change:
+                # Don't actually add the URL but mark the hdl as seemingly OA
+                # and hope that the templates will later linkify it
+                self.proposed_change = "hdl-access=free"
 
     def update_template(self, change):
         """
