@@ -64,8 +64,8 @@ def make_new_wikicode_for_bot(text, template_hash, proposed_addition, page_name)
         edit = main.TemplateEdit(template, page_name)
         if edit.orig_hash == template_hash:
             try:
-				for proposed_parameter in proposed_addition.split("|"):
-					edit.update_template(proposed_parameter)
+                for proposed_parameter in proposed_addition.split("|"):
+                    edit.update_template(proposed_parameter)
                 change_made = True
             except ValueError:
                 app.logger.exception('update_template failed on {}'.format(page_name))
