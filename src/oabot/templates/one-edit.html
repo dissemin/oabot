@@ -110,7 +110,7 @@
         </div>
 
         <h3>URL preview</h3>
-        {% if proposed_edit.is_https %}
+        {% if proposed_edit.proposed_link.startswith("https") %}
         <div id="preview-target">
         <iframe width="400" height="300" src="{{ proposed_edit.proposed_link }}"></iframe>
         </div>

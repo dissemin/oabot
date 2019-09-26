@@ -18,10 +18,14 @@ domain_priority = {
 domain_blacklist = [
     'www.researchgate.net',
     # Publisher links are redundant with DOI links and often become inaccessible.
+    'aaccjnls.org',
     'aacrjournals.org',
     'aanda.org',
     'aappublications.org',
     'ahajournals.org',
+    'ajol.info',
+    'ajronline.org',
+    'americanarchivist.org',
     'amjbot.org',
     'ams.org',
     'annals.org',
@@ -43,12 +47,23 @@ domain_blacklist = [
     'doi.org',
     'ersjournals.com',
     'erudit.org',
+    'euppublishing.com',
+    'fasebj.com',
+    'futuremedicine.com',
+    'healio.com',
+    'healthaffairs.org',
+    'informs.org',
+    'int-res.com',
+    'intlpress.com',
     'iop.org',
     'jamanetwork.com',
     'jbc.org',
     'jimmunol.org',
+    'jlr.org',
     'jneurosci.org',
+    'journal.csj.jp',
     'journals.ametsoc.org',
+    'journals.iucr.org',
     'journals.lww.com',
     'journals.sagepub.com',
     'journals.uchicago.edu',
@@ -57,24 +72,41 @@ domain_blacklist = [
     'link.aps.org',
     'link.springer.com',
     'microbiologyresearch.org',
+    'movementsciencemedia.org',
+    'mscand.dk',
+    'msp.org',
+    'mdpi.com',
     'nature.com',
     'nejm.org',
     'neurology.org',
     'nrcresearchpress.com',
+    'oceanrep.geomar.de',
     'onlinelibrary.wiley.com',
     'oup.com',
+    'parasite-journal.org',
     'physiology.org',
+    'plos.org',
+    'plosone.org',
     'pubs.acs.org',
     'pubs.aeaweb.org',
+    'rcpsych.org',
     'reproduction-online.org',
     'royalsocietypublishing.org',
     'rsc.org',
     'sciencedirect.com',
     'sciencemag.org',
     'scitation.org',
+    'spandidos-publications.com',
+    'springer.com',
     'tandfonline.com',
     'thelancet.com',
     'thieme-connect.de',
+    'ucpress.edu',
+    # Repositories with too many false positives
+    'library.tue.nl',
+    'orbit.dtu.dk',
+    'pangaea.de',
+    'scielo.br',
 ]
 
 domain_re = re.compile(r'\s*(https?|ftp)://(([a-zA-Z0-9-_]+\.)+[a-zA-Z]+)(:[0-9]+)?/?')
@@ -92,7 +124,7 @@ def sort_links(urls):
     return sorted(urls, key=link_rank)
 
 def is_blacklisted(url):
-    if '/accesoRestringido.pdf' in url:
+    if 'estringido.pdf' in url:
         return True
     subdomain = extract_domain(url)
     for domain in domain_blacklist:

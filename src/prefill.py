@@ -7,16 +7,17 @@ from time import sleep
 
 def worker(title=None):
     try:
-        get_proposed_edits(title, False, True)
+        get_proposed_edits(title, False, True, True)
     except:
         pass
 
 def prefill_cache(max_pages=5000, starting_page=None):
     site = pywikibot.Site()
-    cs1 = pywikibot.Page(site, 'Module:Citation/CS1')
+    # pages = pywikibot.Page(site, 'Module:Citation/CS1').embeddedin(namespaces=[0])
+    pages = pywikibot.Page(site, 'Digital object identifier').backlinks(namespaces=[0])
     count = 0
     starting_page_seen = starting_page is None
-    for p in cs1.embeddedin(namespaces=[0]):
+    for p in pages:
         print(p.title().encode('utf-8'))
         if p.title() == starting_page:
            starting_page_seen = True
@@ -30,7 +31,7 @@ def prefill_cache(max_pages=5000, starting_page=None):
         except:
             sleep(60)
         count += 1
-        sleep(0.2)
+        sleep(1.5)
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:

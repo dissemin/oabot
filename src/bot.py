@@ -12,7 +12,7 @@ def run_bot(template_param, access_token=None, site=None, max_edits=100000):
             page_json = json.load(f)
         if run_bot_on_page(page_json, template_param, access_token=access_token, site=site):
             edits_made += 1
-            sleep(3)
+            sleep(10)
         if edits_made >= max_edits:
             return
 

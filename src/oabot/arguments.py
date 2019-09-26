@@ -2,6 +2,10 @@
 
 from __future__ import unicode_literals
 import re
+try:
+    from urllib.parse import unquote
+except ImportError:
+    from urllib import unquote
 
 # helper
 def get_value(template, param):
@@ -68,11 +72,21 @@ class ArgumentMapping(object):
                     )
                 )
 
+    def normalise(self, url):
+        """
+        Convert the URL into an equivalent which is more suitable for comparison and ranks.
+        """
+        if 'babel.hathitrust.org' in url:
+            return unquote(re.sub(r"https://babel\.hathitrust\.org/cgi/imgsrv/download/pdf\?id=([^;]+).*",
+                          r"https://hdl.handle.net/2027/\1",
+                          url))
+        return url
 
     def extract(self, url):
         """
         Extract the parameter value from the URL, or None if it does not match
         """
+        url = self.normalise(url)
         match = self.regex.match(url)
         if not match:
             return None

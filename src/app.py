@@ -209,14 +209,14 @@ def get_random_edit():
 
 redirect_re = re.compile(r'#REDIRECT *\[\[(.*)\]\]')
 
-def get_proposed_edits(page_name, force, follow_redirects=True):
+def get_proposed_edits(page_name, force, follow_redirects=True, only_doi=False):
     # Get the page
     text = main.get_page_over_api(page_name)
 
     # See if it's a redirect
     redir = redirect_re.match(text)
     if redir:
-        return get_proposed_edits(redir.group(1), force, False)
+        return get_proposed_edits(redir.group(1), force, False, only_doi)
 
     # See if we already have it cached
     cache_fname = "cache/"+to_cache_name(page_name)
@@ -225,7 +225,7 @@ def get_proposed_edits(page_name, force, follow_redirects=True):
             return json.load(f)
 
     # Otherwise, process it
-    all_templates = main.add_oa_links_in_references(text, page_name)
+    all_templates = main.add_oa_links_in_references(text, page_name, only_doi)
     filtered = list(filter(lambda e: e.proposed_change, all_templates))
     context = {
     'proposed_edits': [change.json() for change in filtered],
@@ -299,6 +299,11 @@ def perform_edit():
     # Perform each edit
     new_text, change_made = make_new_wikicode(text, data, page_name)
 
+    # Remove the cache
+    cache_fname = "cache/"+to_cache_name(page_name)
+    if os.path.isfile(cache_fname):
+        os.remove(cache_fname)
+
     # Save the page
     if change_made:
         access_token = flask.session.get('access_token', None)
@@ -307,11 +312,6 @@ def perform_edit():
             'en',
             flask.session.get('username', None),
             1, 1)
-
-        # Remove the cache
-        cache_fname = "cache/"+to_cache_name(page_name)
-        if os.path.isfile(cache_fname):
-            os.remove(cache_fname)
 
         return flask.redirect(flask.url_for('get_random_edit'))
     else:
@@ -479,6 +479,9 @@ def stream_url():
     response = flask.make_response()
     response.data = r.content
     response.headers['Content-Type'] = r.headers['Content-Type']
+    # Preserve filename if possible
+    if 'Content-Disposition' in r.headers:
+        response.headers['Content-Disposition'] = r.headers['Content-Disposition']
     # Work around incorrect application/octet-stream
     if 'zenodo.org' in url:
         response.headers['Content-Type'] = 'application/pdf'
