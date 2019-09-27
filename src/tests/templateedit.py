@@ -60,6 +60,13 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
         """)
         self.assertEquals("hdl-access=free", edit.proposed_change)
 
+    # Do not add URL redundant with existing DOI even if doi-access missing
+    def test_existing_oadoi(self):
+        edit = self.propose_change("""
+{{cite journal |last1=Blakeslee |first1=April M. H. |title=Assessing the Effects of Trematode Infection on Invasive Green Crabs in Eastern North America |journal=PLOS ONE |date=1 June 2015 |volume=10 |issue=6 |doi=10.1371/journal.pone.0128674 }}
+        """)
+        self.assertEquals("doi-access=free", edit.proposed_change)
+
     def test_uppercase(self):
         edit = self.propose_change("""
 {{Cite journal|last=Prpić|first=John|last2=Shukla|first2=Prashant P.|last3=Kietzmann|first3=Jan H.|last4=McCarthy|first4=Ian P.|date=2015-01-01|title=How to work a crowd: Developing crowd capital through

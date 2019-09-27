@@ -116,9 +116,13 @@ class TemplateEdit(object):
         link = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
         if link is False:
             self.classification = 'already_open'
-            # TODO add when ready to run as bot
-            # return "doi-access=free"
-            return
+            if doi:
+                return "doi-access=free"
+            # TODO add the DOI suggested by Dissemin if missing. Needs some checks.
+            # elif dissemin_paper_object.get('pdf_url') and 'doi.org' in dissemin_paper_object.get('pdf_url'):
+            #    return dissemin_paper_object.get('pdf_url')
+            else:
+                return
         if not link:
             self.classification = 'not_found'
             return
@@ -305,6 +309,10 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
         for oa_location in resp.get('oa_locations') or []:
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
                 candidate_urls.append(oa_location['url'])
+
+    if paper.get('classification', 'UNK') == 'OA':
+        # Dissemin considers this gold OA, it only needs a doi-access=free
+        return False
 
     # Full text detection is not always accurate, so we try to pick
     # the URL which is most useful for citation templates and we
