@@ -118,6 +118,7 @@ class TemplateEdit(object):
             self.classification = 'already_open'
             if doi:
                 self.proposed_change = "doi-access=free"
+                self.proposed_link = "https://doi.org/{}".format(doi)
                 return
             # TODO add the DOI suggested by Dissemin if missing. Needs some checks.
             # elif dissemin_paper_object.get('pdf_url') and 'doi.org' in dissemin_paper_object.get('pdf_url'):
