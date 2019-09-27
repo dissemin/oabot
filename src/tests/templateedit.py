@@ -53,6 +53,13 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
         """)
         self.assertEquals("hdl=11382/3170|hdl-access=free", edit.proposed_change)
 
+    # Non-OA paper, expecting URL https://deepblue.lib.umich.edu/bitstream/2027.42/73088/1/j.1096-0031.1992.tb00073.x.pdf
+    def test_existing_hdl(self):
+        edit = self.propose_change("""
+{{cite journal |author=Naylor, G.J.P. |title=The phylogenetic relationships among requiem and hammerhead sharks: inferring phylogeny when thousands of equally most parsimonious trees result |journal=Cladistics |volume=8 |date=1992 |pages=295&ndash;318 |doi=10.1111/j.1096-0031.1992.tb00073.x |issue=4|hdl=2027.42/73088 }}
+        """)
+        self.assertEquals("hdl-access=free", edit.proposed_change)
+
     def test_uppercase(self):
         edit = self.propose_change("""
 {{Cite journal|last=Prpić|first=John|last2=Shukla|first2=Prashant P.|last3=Kietzmann|first3=Jan H.|last4=McCarthy|first4=Ian P.|date=2015-01-01|title=How to work a crowd: Developing crowd capital through
