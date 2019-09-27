@@ -294,6 +294,9 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
             if resp['best_oa_location']['host_type'] == 'publisher':
                 # We're coming from the DOI so if anything add doi-access=free
                 return False
+            elif 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
+                # Use the CiteSeerX URL which gets converted to the parameter
+                return resp['best_oa_location']['url_for_landing_page']
             else:
                 url = resp['best_oa_location']['url']
                 if not is_blacklisted(url):
