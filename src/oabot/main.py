@@ -117,10 +117,12 @@ class TemplateEdit(object):
         if link is False:
             self.classification = 'already_open'
             if doi:
-                return "doi-access=free"
+                self.proposed_change = "doi-access=free"
+                return
             # TODO add the DOI suggested by Dissemin if missing. Needs some checks.
             # elif dissemin_paper_object.get('pdf_url') and 'doi.org' in dissemin_paper_object.get('pdf_url'):
-            #    return dissemin_paper_object.get('pdf_url')
+            #    self.proposed_change = dissemin_paper_object.get('pdf_url')
+            #    return
             else:
                 return
         if not link:
@@ -310,9 +312,9 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
                 candidate_urls.append(oa_location['url'])
 
-    if paper.get('classification', 'UNK') == 'OA':
-        # Dissemin considers this gold OA, it only needs a doi-access=free
-        return False
+    # TODO If Dissemin considers this gold OA, it only needs a doi-access=free
+    #if paper.get('classification', 'UNK') == 'OA':
+    #    return False
 
     # Full text detection is not always accurate, so we try to pick
     # the URL which is most useful for citation templates and we

@@ -7,11 +7,11 @@ from oabot.main import *
 
 class TemplateEditTests(unittest.TestCase):
 
-    def propose_change(self, text, page_name='Test page'):
+    def propose_change(self, text, page_name='Test page', only_doi=False):
         wikicode = mwparserfromhell.parse(text)
         for template in wikicode.filter_templates():
             edit = TemplateEdit(template, page_name)
-            edit.propose_change()
+            edit.propose_change(only_doi)
             return edit
 
     def test_add_arxiv(self):
@@ -27,7 +27,6 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
     def test_add_pmc(self):
         edit = self.propose_change("""
 {{Cite journal|doi=10.4103/0973-7847.112853|title=Phytochemistry and medicinal properties of Phaleria macrocarpa (Scheff.) Boerl. Extracts|journal=Pharmacognosy Reviews|volume=7|issue=13|pages=73–80|year=2013|last1=Altaf|first1=Rabia}}
-
         """)
         self.assertEquals("pmc=3731883", edit.proposed_change)
 
@@ -64,7 +63,7 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
     def test_existing_oadoi(self):
         edit = self.propose_change("""
 {{cite journal |last1=Blakeslee |first1=April M. H. |title=Assessing the Effects of Trematode Infection on Invasive Green Crabs in Eastern North America |journal=PLOS ONE |date=1 June 2015 |volume=10 |issue=6 |doi=10.1371/journal.pone.0128674 }}
-        """)
+        """, only_doi=True)
         self.assertEquals("doi-access=free", edit.proposed_change)
 
     def test_uppercase(self):
