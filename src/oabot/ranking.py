@@ -104,9 +104,16 @@ domain_blacklist = [
     'ucpress.edu',
     # Repositories with too many false positives
     'library.tue.nl',
+    'opengrey.eu',
+    'orbilu.uni.lu',
     'orbit.dtu.dk',
     'pangaea.de',
     'scielo.br',
+]
+
+keyword_blacklist = [
+    'estringido.pdf',
+    'hdl.handle.net/10068',
 ]
 
 domain_re = re.compile(r'\s*(https?|ftp)://(([a-zA-Z0-9-_]+\.)+[a-zA-Z]+)(:[0-9]+)?/?')
@@ -124,8 +131,9 @@ def sort_links(urls):
     return sorted(urls, key=link_rank)
 
 def is_blacklisted(url):
-    if 'estringido.pdf' in url:
-        return True
+    for keyword in keyword_blacklist:
+        if keyword in url:
+            return True
     subdomain = extract_domain(url)
     for domain in domain_blacklist:
         if domain in subdomain:
