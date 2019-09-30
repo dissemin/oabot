@@ -18,27 +18,36 @@ def run_bot(template_param, access_token=None, site=None, max_edits=100000):
 
 def run_bot_on_page(proposed_edits, template_param, access_token=None, site=None):
     page_name = proposed_edits['page_name']
+    proposed_additions = {}
+    ids_touched = []
 
     for edit in proposed_edits['proposed_edits']:
-        edit_hash = edit['orig_hash']
+        template_hash = edit['orig_hash']
         change = edit['proposed_change']
         match = re.findall(r'^' + template_param, change)
         if match:
-            try:
-                app.logger.info('Attempting change on {}: {}'.format(page_name, change))
-                change_made = perform_bot_edit(page_name, '[[Wikipedia:OABOT|Open access bot]]: add %s identifier to citation with #oabot.' % match[0], edit_hash, change, access_token=access_token, site=site)
-                if change_made:
-                    return True
-            except ValueError:
-                app.logger.exception('perform_bot_edit failed on {}'.format(page_name))
+            proposed_additions[template_hash] = change
+            ids_touched += match
+
+    if len(proposed_additions) < 1:
+        return False
+
+    try:
+        app.logger.info('Attempting change on {}: {}'.format(page_name, change))
+        change_made = perform_bot_edit(page_name, '[[Wikipedia:OABOT|Open access bot]]: {} added to citation with #oabot.'.format(', '.join(set(ids_touched))), proposed_additions, access_token=access_token, site=site)
+        if change_made:
+            return True
+    except ValueError:
+        app.logger.exception('perform_bot_edit failed on {}'.format(page_name))
     return False
 
-def perform_bot_edit(page_name, summary, template_hash, proposed_addition, access_token=None, site=None):
+def perform_bot_edit(page_name, summary, proposed_additions, access_token=None, site=None):
      # Get the page
-    text = main.get_page_over_api(page_name)
+    new_text = main.get_page_over_api(page_name)
 
     # Perform each edit
-    new_text, change_made = make_new_wikicode_for_bot(text, template_hash, proposed_addition, page_name)
+    for template_hash in proposed_additions:
+        new_text, change_made = make_new_wikicode_for_bot(new_text, template_hash, proposed_additions[template_hash], page_name)
 
     # Save the page
     if change_made:
