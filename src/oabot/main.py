@@ -228,6 +228,10 @@ def get_dissemin_paper(reference):
         except (ValueError, requests.exceptions.RequestException) as e:
             sleep(5)
             continue
+        except IndexError:
+            # The author names are not what expected, give up on a record match
+            # TODO: could probably try harder
+            return {}
     return {}
 
 def get_paper_values(paper, attribute):
