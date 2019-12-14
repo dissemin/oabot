@@ -49,9 +49,9 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
     # Test add handle and hdl-access
     def test_add_hdl(self):
         edit = self.propose_change("""
-{{cite journal|doi=10.1006/mcpr.2001.0377|pmid=11851384|title=C306A single nucleotide polymorphism in the human CEBPD gene that maps at 8p11.1–p11.2|journal=Molecular and Cellular Probes|volume=15|issue=6|pages=395–397|year=2002|last1=Angeloni|first1=Debora|last2=Lee|first2=Joshua D.}}
+{{cite journal|last1=Fraass|first1=Benedick A.|title=The development of conformal radiation therapy|journal=Medical Physics|date=1995|volume=22|issue=11|pages=1911–1921|doi=10.1118/1.597446|pmid=8587545}}
         """)
-        self.assertEquals("hdl=11382/3170|hdl-access=free", edit.proposed_change)
+        self.assertEquals("hdl=2027.42/134769|hdl-access=free", edit.proposed_change)
 
     def test_uppercase(self):
         edit = self.propose_change("""
