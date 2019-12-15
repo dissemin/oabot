@@ -245,6 +245,10 @@ def get_dissemin_paper(reference):
         except (ValueError, requests.exceptions.RequestException) as e:
             sleep(5)
             continue
+        except IndexError:
+            # The author names are not what expected, give up on a record match
+            # TODO: could probably try harder
+            return {}
     return {}
 
 def get_paper_values(paper, attribute):
@@ -298,14 +302,18 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
             # Just rely on whichever URL Unpaywall considers the best location.
             if not resp['is_oa']:
                 return None
-            if resp['best_oa_location']['host_type'] == 'publisher':
+            boa = resp['best_oa_location']
+            if boa['host_type'] == 'publisher':
                 # We're coming from the DOI so if anything add doi-access=free
                 return False
             elif 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
                 # Use the CiteSeerX URL which gets converted to the parameter
                 return resp['best_oa_location']['url_for_landing_page']
             else:
-                url = resp['best_oa_location']['url']
+                if 'hdl.handle.net' in boa['url_for_landing_page']:
+                    url = boa['url_for_landing_page']
+                else:
+                    url = boa['url']
                 if not is_blacklisted(url):
                     return url
 
