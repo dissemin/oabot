@@ -285,11 +285,15 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
             # Just rely on whichever URL Unpaywall considers the best location.
             if not resp['is_oa']:
                 return None
-            if resp['best_oa_location']['host_type'] == 'publisher':
+            boa = resp['best_oa_location']
+            if boa['host_type'] == 'publisher':
                 # We're coming from the DOI so if anything add doi-access=free
                 return False
             else:
-                url = resp['best_oa_location']['url']
+                if 'hdl.handle.net' in boa['url_for_landing_page']:
+                    url = boa['url_for_landing_page']
+                else:
+                    url = boa['url']
                 if not is_blacklisted(url):
                     return url
 
