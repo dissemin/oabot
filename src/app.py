@@ -97,6 +97,8 @@ def index():
         'username' : flask.session.get('username', None),
         'success' : flask.request.args.get('success'),
     }
+    if context['username']:
+        return flask.redirect(flask.url_for('get_random_edit'))
     return flask.render_template("index.html", **context)
 
 def edit_wiki_page(page_name, content, access_token, summary=None, bot=False):
