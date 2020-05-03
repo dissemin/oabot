@@ -132,6 +132,8 @@ class TemplateEdit(object):
 
         # We found an OA link!
         self.proposed_link = link
+        # If the parameter is not present yet, add it
+        self.classification = 'link_added'
 
         if dissemin_paper_object:
             self.proposed_link_policy = get_paper_values(dissemin_paper_object, 'policy')
@@ -162,10 +164,7 @@ class TemplateEdit(object):
                 if argmap.name == 'hdl':
                     self.proposed_change = "hdl-access=free"
                 # don't change anything else
-                break
-
-            # If the parameter is not present yet, add it
-            self.classification = 'link_added'
+                return
 
             if argmap.is_id:
                 self.proposed_change = 'id={{%s|%s}}' % (argmap.name,match)
