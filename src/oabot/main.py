@@ -132,6 +132,8 @@ class TemplateEdit(object):
 
         # We found an OA link!
         self.proposed_link = link
+        # If the parameter is not present yet, add it
+        self.classification = 'link_added'
 
         if dissemin_paper_object:
             self.proposed_link_policy = get_paper_values(dissemin_paper_object, 'policy')
@@ -162,10 +164,7 @@ class TemplateEdit(object):
                 if argmap.name == 'hdl':
                     self.proposed_change = "hdl-access=free"
                 # don't change anything else
-                break
-
-            # If the parameter is not present yet, add it
-            self.classification = 'link_added'
+                return
 
             if argmap.is_id:
                 self.proposed_change = 'id={{%s|%s}}' % (argmap.name,match)
@@ -298,15 +297,18 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
                 else:
                     continue
 
+        boa = resp.get('best_oa_location', None)
         if only_unpaywall:
-            # Just rely on whichever URL Unpaywall considers the best location.
+            # Just give up when Unpaywall doesn't know an OA location.
             if not resp['is_oa']:
                 return None
-            boa = resp['best_oa_location']
+        # If we have Unpaywall data, use it and prefer identifiers.
+        if boa:
             if boa['host_type'] == 'publisher':
-                # We're coming from the DOI so if anything add doi-access=free
+                # If we're coming from the DOI rather add doi-access=free
+                # Avoid getting publisher URLs from Unpaywall or Dissemin
                 return False
-            elif 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
+            if 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
                 # Use the CiteSeerX URL which gets converted to the parameter
                 return resp['best_oa_location']['url_for_landing_page']
             else:

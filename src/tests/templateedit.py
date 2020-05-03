@@ -15,12 +15,11 @@ class TemplateEditTests(unittest.TestCase):
             return edit
 
     def test_add_arxiv(self):
-        # Dissemin has the first two authors in reversed order but Unpaywall still finds it
+        # Paper also on Dissemin but without arxiv link as of 2020-05
         edit = self.propose_change("""
-{{Cite journal|last=Prpić|first=John|last2=Shukla|first2=Prashant P.|last3=Kietzmann|first3=Jan H.|last4=McCarthy|first4=Ian P.|date=2015-01-01|title=How to work a crowd: Developing crowd capital through
-crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S0007681314001438|journal=Business Horizons|volume=58|issue=1|pages=77–85|doi=10.1016/j.bushor.2014.09.005}}
+{{Cite journal|last=McLachlan|first=Robert I.|last2=Offen|first2=Christian|date=2019|title=Symplectic integration of boundary value problems|journal=Numerical Algorithms|language=en|volume=81|issue=4|pages=1219–1233|doi=10.1007/s11075-018-0599-7}}
         """)
-        self.assertEquals("arxiv=1702.04214", edit.proposed_change)
+        self.assertEquals("arxiv=1804.09042", edit.proposed_change)
 
     # Test ability to find the PMC ID in case with multiple issues:
     # Dissemin returns 1 dead publisher URL, 3 PMC URLs and 1 PMID URL
