@@ -1,5 +1,6 @@
 import pywikibot
 import sys
+import random
 import requests
 from app import get_proposed_edits, app
 import threading
@@ -17,7 +18,11 @@ def prefill_cache(max_pages=5000, starting_page=None):
     pages = pywikibot.Page(site, 'Digital object identifier').backlinks(namespaces=[0])
     count = 0
     starting_page_seen = starting_page is None
+    sortedpages = []
     for p in pages:
+        sortedpages.append(p)
+    random.shuffle(sortedpages)
+    for p in sortedpages:
         print(p.title().encode('utf-8'))
         if p.title() == starting_page:
            starting_page_seen = True
@@ -27,7 +32,8 @@ def prefill_cache(max_pages=5000, starting_page=None):
         if not starting_page_seen:
             continue
         try:
-            threading.Thread(target=worker, args=[p.title()]).start()
+            get_proposed_edits(p.title(), False, True, True)
+            #threading.Thread(target=worker, args=[p.title()]).start()
         except:
             sleep(60)
         count += 1
