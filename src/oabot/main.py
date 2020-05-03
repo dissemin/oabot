@@ -207,9 +207,9 @@ def get_dissemin_paper(reference):
     get dissemin API information for that link
     """
     doi = reference.get('ID_list', {}).get('DOI')
-    title = reference.get('Title')
+    title = reference.get('Title', '')
     authors = reference.get('Authors', [])
-    date = reference.get('Date')
+    date = reference.get('Date', '')
 
     # CS1 represents unparsed authors as {'last':'First Last'}
     for i in range(len(authors)):
@@ -225,7 +225,7 @@ def get_dissemin_paper(reference):
 
     for retry in range(5):
         try:
-            req = requests.post('https://dissem.in/api/query',
+            req = requests.post('https://dissem.in/api/query/',
                                 json=args,
                                 headers={'User-Agent':OABOT_USER_AGENT},
                                 timeout=10)
