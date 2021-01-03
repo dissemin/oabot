@@ -1,3 +1,12 @@
+#!/usr/bin/python3
+# -*- coding: utf-8  -*-
+""" Script to run the OAbot suggestion creation on all relevant English Wikipedia pages """
+#
+# (C) CAPSH, 2020
+#
+# Distributed under the terms of the MIT license.
+#
+
 import pywikibot
 import sys
 import random
