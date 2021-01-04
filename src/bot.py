@@ -39,6 +39,8 @@ def run_bot_on_page(proposed_edits, template_param, access_token=None, site=None
             return True
     except ValueError:
         app.logger.exception('perform_bot_edit failed on {}'.format(page_name))
+    except (pywikibot.exceptions.OtherPageSaveError, requests.exceptions.ReadTimeout):
+        app.logger.exception('perform_bot_edit was rejected or timed out on {}'.format(page_name))
     return False
 
 def perform_bot_edit(page_name, summary, proposed_additions, access_token=None, site=None):

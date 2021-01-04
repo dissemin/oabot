@@ -1,43 +1,54 @@
+#!/usr/bin/python2
+# -*- coding: utf-8  -*-
+""" Script to get OAbot suggestions for all English Wikipedia pages """
+#
+# (C) CAPSH, 2020
+#
+# Distributed under the terms of the MIT license.
+#
+
+import multiprocessing
 import pywikibot
 import sys
 import random
 import requests
 from app import get_proposed_edits, app
-import threading
 from time import sleep
 
-def worker(title=None):
-    try:
-        get_proposed_edits(title, False, True, True)
-    except:
-        pass
 
-def prefill_cache(max_pages=5000, starting_page=None):
+def worker(title=None):
+    print(title)
+    try:
+        get_proposed_edits(page_name=title,
+                           force=False,
+                           follow_redirects=True,
+                           only_doi=True)
+    except:
+        sleep(60)
+    sleep(0.1)
+
+
+def prefill_cache(max_pages=5000):
+    print("INFO: Getting the list of pages to work on")
     site = pywikibot.Site()
-    # pages = pywikibot.Page(site, 'Module:Citation/CS1').embeddedin(namespaces=[0])
-    pages = pywikibot.Page(site, 'Digital object identifier').backlinks(namespaces=[0])
+    # pages = pywikibot.Page(site, 'Module:Citation/CS1'
+    #                        ).embeddedin(namespaces=[0])
+    pages = pywikibot.Page(site, 'Digital object identifier'
+                           ).backlinks(namespaces=[0])
     count = 0
-    starting_page_seen = starting_page is None
     sortedpages = []
+    # TODO: Use timestamp to allow working only on recently updatede pages
     for p in pages:
-        sortedpages.append(p)
+        sortedpages.append(p.title().encode('utf-8'))
     random.shuffle(sortedpages)
-    for p in sortedpages:
-        print(p.title().encode('utf-8'))
-        if p.title() == starting_page:
-           starting_page_seen = True
-           continue
+
+    print("INFO: Will start working on {} pages".format(len(sortedpages)))
+    pool = multiprocessing.Pool(10)
+    for p in pool.map(worker, sortedpages):
+        print(".")
         if count >= max_pages:
             break
-        if not starting_page_seen:
-            continue
-        try:
-            get_proposed_edits(p.title(), False, True, True)
-            #threading.Thread(target=worker, args=[p.title()]).start()
-        except:
-            sleep(60)
         count += 1
-        sleep(1.5)
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
