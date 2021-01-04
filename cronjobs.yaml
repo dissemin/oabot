@@ -1,0 +1,38 @@
+---
+apiVersion: batch/v1beta1                                                                                                                                                                                 kind: CronJob
+metadata:
+  name: oabotrefresh
+  labels:
+    name: oabot.oabotrefresh
+    # The toolforge=tool label will cause $HOME and other paths to be mounted from Toolforge
+    toolforge: tool
+spec:
+  # Every Saturday a bit after midnight should be fine
+  schedule: "17 2 * * 6"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            toolforge: tool                                                                                                                                                                                       spec:
+          containers:
+          - name: oabotrefresh
+            workingDir: /data/project/oabot/www/python/
+            image: docker-registry.tools.wmflabs.org/toolforge-python2-sssd-base:latest
+            resources:
+            # That's the maximum we can get at the moment, see P13646 .
+            # Prefilling is usually CPU-bound with ~10 threads. If there are crashes
+            # for insufficient memory, reduce threads in bot.py and maybe ask more resources.
+              requests:
+                memory: "4Gi"
+                cpu: "1"
+              limits:
+                memory: "4Gi"
+                cpu: "1"
+            args:                                                                                                                                                                                                     - /bin/sh
+            - -c
+            - /data/project/oabot/www/python/oabot_refresh.sh
+            env:
+            - name: HOME
+              value: /data/project/oabot
+          restartPolicy: Never
