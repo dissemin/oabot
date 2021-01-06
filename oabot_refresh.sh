@@ -4,8 +4,8 @@
 cd ~/www/python/src/
 ~/www/python/venv/bin/python ~/www/python/src/prefill.py
 cd ~/www/python/src/cache/
-ack --no-recurse -l '"proposed_change": "(hdl|pmc|arxiv|doi)' --print0 | xargs -0 -I§ mv § ~/www/python/src/bot_cache/
-ack --no-recurse -l '"proposed_link": "http://(citeseerx|pdfs.semanticscholar.org)' --print0 | xargs -0 -I§ mv § ~/www/python/src/cache/ss/
+grep -ErlZ --exclude-dir="*" '"proposed_change": "(hdl|pmc|arxiv|doi)' | xargs -0 -I§ mv "§" ~/www/python/src/bot_cache/
+grep -ErlZ --exclude-dir="*" '"proposed_link": "http://(citeseerx|pdfs.semanticscholar.org)' | xargs -0 -I§ mv "§" ~/www/python/src/cache/ss/
 cd ~/www/python/
 for title in $( find ~/www/python/src/cache -maxdepth 1 -type f -mtime -14 -name "*json" -printf "%f\n" | sed 's,#,/,g' | sed 's,.json,,g' | sort | shuf ); do bash oabot_prefill_single.sh "$title" ; done
 cd ~/www/python/src/
