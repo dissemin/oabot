@@ -43,7 +43,7 @@ def prefill_cache(max_pages=5000):
     random.shuffle(sortedpages)
 
     print("INFO: Will start working on {} pages".format(len(sortedpages)))
-    pool = multiprocessing.Pool(10)
+    pool = multiprocessing.Pool(5)
     for p in pool.map(worker, sortedpages):
         print(".")
         if count >= max_pages:
