@@ -35,4 +35,7 @@ spec:
             env:
             - name: HOME
               value: /data/project/oabot
+          completions: 1
+          parallelism: 1
+          backoffLimit: 1
           restartPolicy: Never
