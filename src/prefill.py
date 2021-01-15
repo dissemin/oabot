@@ -31,19 +31,19 @@ def worker(title=None):
 def prefill_cache(max_pages=5000):
     print("INFO: Getting the list of pages to work on")
     site = pywikibot.Site()
-    # pages = pywikibot.Page(site, 'Module:Citation/CS1'
-    #                        ).embeddedin(namespaces=[0])
-    pages = pywikibot.Page(site, 'Digital object identifier'
-                           ).backlinks(namespaces=[0])
+    pages = pywikibot.Page(site, 'Module:Citation/CS1'
+                            ).embeddedin(namespaces=[0])
+    # pages = pywikibot.Page(site, 'Doi (identifier)'
+    #                       ).backlinks(namespaces=[0])
     count = 0
     sortedpages = []
-    # TODO: Use timestamp to allow working only on recently updatede pages
+    # TODO: Use timestamp to allow working only on recently updated pages
     for p in pages:
         sortedpages.append(p.title().encode('utf-8'))
     random.shuffle(sortedpages)
 
     print("INFO: Will start working on {} pages".format(len(sortedpages)))
-    pool = multiprocessing.Pool(5)
+    pool = multiprocessing.Pool(10)
     for p in pool.map(worker, sortedpages):
         print(".")
         if count >= max_pages:
