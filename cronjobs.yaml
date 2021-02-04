@@ -20,15 +20,15 @@ spec:
             workingDir: /data/project/oabot/www/python/
             image: docker-registry.tools.wmflabs.org/toolforge-python2-sssd-base:latest
             resources:
-            # That's the maximum we can get at the moment, see P13646 .
-            # Prefilling is usually CPU-bound with ~10 threads. If there are crashes
+            # See T273601#6802229
+            # Prefilling is usually CPU-bound with 5-10 threads. If there are crashes
             # for insufficient memory, reduce threads in bot.py and maybe ask more resources.
               requests:
-                memory: "4Gi"
-                cpu: "1"
+                memory: "8Gi"
+                cpu: "2"
               limits:
-                memory: "4Gi"
-                cpu: "1"
+                memory: "8Gi"
+                cpu: "2"
             args:                                                                                                                                                                                                     - /bin/sh
             - -c
             - /data/project/oabot/www/python/oabot_refresh.sh
