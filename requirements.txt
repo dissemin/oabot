@@ -1,7 +1,6 @@
 configparser
 docopt
 flask
-hashlib
 multiprocessing
 mwoauth
 mysql
