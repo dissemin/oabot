@@ -50,7 +50,11 @@ urllib3.contrib.pyopenssl.inject_into_urllib3()
 import sys
 if sys.version_info.major < 3:
     importlib.reload(sys)
-sys.setdefaultencoding('utf8')
+try:
+    sys.setdefaultencoding('utf8')
+except AttributeError:
+    # Nothing to do in Python3
+    pass
 
 app = flask.Flask(__name__,
                   static_folder=os.path.join('oabot', 'static'))
