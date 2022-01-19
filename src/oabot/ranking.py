@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from __future__ import unicode_literals
+
 import re
 
 rg_re = re.compile('(https?://www\.researchgate\.net/)(.*)(publication/[0-9]*)_.*/links/[0-9a-f]*.pdf')

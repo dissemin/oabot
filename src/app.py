@@ -43,12 +43,13 @@ from oabot.userstats import UserStats
 
 import urllib3
 import urllib3.contrib.pyopenssl
+import importlib
 urllib3.disable_warnings()
 urllib3.contrib.pyopenssl.inject_into_urllib3()
 
 import sys
 if sys.version_info.major < 3:
-    reload(sys)
+    importlib.reload(sys)
 sys.setdefaultencoding('utf8')
 
 app = flask.Flask(__name__,
@@ -164,7 +165,7 @@ def review_one_edit():
 
 def to_cache_name(page_name):
     safe_page_name = page_name.replace('/','#').replace(' ','_')
-    if type(safe_page_name) == unicode:
+    if type(safe_page_name) == str:
         safe_page_name = safe_page_name.encode('utf-8')
     cache_fname = '%s.json' % safe_page_name
     return cache_fname
@@ -227,11 +228,11 @@ def get_proposed_edits(page_name, force, follow_redirects=True, only_doi=False):
 
     # Otherwise, process it
     all_templates = main.add_oa_links_in_references(text, page_name, only_doi)
-    filtered = list(filter(lambda e: e.proposed_change, all_templates))
+    filtered = list([e for e in all_templates if e.proposed_change])
     context = {
     'proposed_edits': [change.json() for change in filtered],
     'page_name' : page_name,
-        'utcnow': unicode(datetime.datetime.utcnow()),
+        'utcnow': str(datetime.datetime.utcnow()),
     }
 
     if filtered:
@@ -269,7 +270,7 @@ def make_new_wikicode(text, form_data, page_name):
                 except ValueError:
                     app.logger.exception('update_template failed on {}'.format(page_name))
                     pass # TODO report to the user
-    return unicode(wikicode), change_made
+    return str(wikicode), change_made
 
 
 def chosen_rejections(form_data):
@@ -409,8 +410,8 @@ the
         app.logger.exception('mwoauth.initiate failed')
         return flask.redirect(flask.url_for('index'))
     else:
-        flask.session['request_token'] = dict(zip(
-            request_token._fields, request_token))
+        flask.session['request_token'] = dict(list(zip(
+            request_token._fields, request_token)))
         return flask.redirect(redirect)
 
 
@@ -418,7 +419,7 @@ the
 def oauth_callback():
     """OAuth handshake callback."""
     if 'request_token' not in flask.session:
-        flask.flash(u'OAuth callback failed. Are cookies disabled?')
+        flask.flash('OAuth callback failed. Are cookies disabled?')
         return flask.redirect(flask.url_for('index'))
 
     consumer_token = mwoauth.ConsumerToken(
@@ -437,8 +438,8 @@ def oauth_callback():
         app.logger.exception('OAuth authentication failed')
 
     else:
-        flask.session['access_token'] = dict(zip(
-            access_token._fields, access_token))
+        flask.session['access_token'] = dict(list(zip(
+            access_token._fields, access_token)))
         print('//////// ACCESS_TOKEN')
         print(access_token)
         flask.session['username'] = identity['username']
@@ -455,11 +456,11 @@ def logout():
 
 @app.route('/static/<path:path>')
 def send_static(path):
-     print("path: {}".format(path))
+     print(("path: {}".format(path)))
      try:
          return flask.send_from_directory('static', path)
      except Exception as e:
-        print("path: {}".format(path))
+        print(("path: {}".format(path)))
         with open('exception', 'w') as f:
             f.write(str(type(e))+' '+str(e))
         return 

@@ -1,12 +1,12 @@
 # -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
+
 from wikiciteparser.parser import parse_citation_template
 try:
-    from urllib import urlencode
+    from urllib.parse import urlencode
 except ImportError:
     from urllib.parse import urlencode
 try:
-    import urlparse
+    import urllib.parse
 except ImportError:
     from urllib.parse import urlparse
 import mwparserfromhell
@@ -14,17 +14,17 @@ import requests
 import json
 import codecs
 import sys
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from unidecode import unidecode
 import re
 from datetime import datetime
 from copy import deepcopy
 import os
-from arguments import template_arg_mappings, get_value
-from ranking import sort_links, is_blacklisted
-from settings import *
-from ondiskcache import OnDiskCache
-from classifier import AcademicPaperFilter
+from .arguments import template_arg_mappings, get_value
+from .ranking import sort_links, is_blacklisted
+from .settings import *
+from .ondiskcache import OnDiskCache
+from .classifier import AcademicPaperFilter
 import hashlib
 from time import sleep
 from Levenshtein import ratio
@@ -43,7 +43,7 @@ class TemplateEdit(object):
                 that we want to change
         """
         self.template = tpl
-        self.orig_string = unicode(self.template)
+        self.orig_string = str(self.template)
         r = hashlib.md5()
         r.update(self.orig_string.encode('utf-8'))
         self.orig_hash = r.hexdigest()
@@ -74,7 +74,7 @@ class TemplateEdit(object):
         Fetches open urls for that template and proposes a change
         """
         reference = parse_citation_template(self.template)
-        tpl_name = unicode(self.template.name).lower().strip()
+        tpl_name = str(self.template.name).lower().strip()
         if not reference or tpl_name in excluded_templates:
             self.classification = 'ignored'
             return
@@ -201,7 +201,7 @@ class TemplateEdit(object):
         self.template.add(param, value)
 
 def remove_diacritics(s):
-    return unidecode(s) if type(s) == unicode else s
+    return unidecode(s) if type(s) == str else s
 
 def get_dissemin_paper(reference):
     """
@@ -341,7 +341,7 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
             try:
                 head = requests.head(url, timeout=10)
                 head.raise_for_status()
-                if head.status_code < 400 and 'Location' in head.headers and urlparse.urlparse(head.headers['Location']).path == '/':
+                if head.status_code < 400 and 'Location' in head.headers and urllib.parse.urlparse(head.headers['Location']).path == '/':
                     # Redirects to main page: fake status code, should be not found
                     continue
                 if not is_blacklisted(url):
@@ -376,7 +376,7 @@ def get_page_over_api(page_name):
         timeout=10)
     r.raise_for_status()
     js = r.json()
-    page = js.get('query',{}).get('pages',{}).values()[0]
+    page = list(js.get('query',{}).get('pages',{}).values())[0]
     pagid = page.get('pageid', -1)
     if pagid == -1:
         raise ValueError("Invalid page.")
