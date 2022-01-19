@@ -1,5 +1,6 @@
 ---
-apiVersion: batch/v1beta1                                                                                                                                                                                 kind: CronJob
+apiVersion: batch/v1beta1
+kind: CronJob
 metadata:
   name: oabotrefresh
   labels:
@@ -14,7 +15,8 @@ spec:
       template:
         metadata:
           labels:
-            toolforge: tool                                                                                                                                                                                       spec:
+            toolforge: tool
+            spec:
           containers:
           - name: oabotrefresh
             workingDir: /data/project/oabot/www/python/
@@ -29,7 +31,8 @@ spec:
               limits:
                 memory: "8Gi"
                 cpu: "2"
-            args:                                                                                                                                                                                                     - /bin/sh
+            args:
+            - /bin/sh
             - -c
             - /data/project/oabot/www/python/oabot_refresh.sh
             env:
