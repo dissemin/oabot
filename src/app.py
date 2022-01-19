@@ -28,7 +28,6 @@ import yaml
 import mwoauth
 import requests
 import json
-import md5
 import codecs
 import re
 import datetime

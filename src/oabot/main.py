@@ -22,7 +22,7 @@ from ranking import sort_links, is_blacklisted
 from settings import *
 from ondiskcache import OnDiskCache
 from classifier import AcademicPaperFilter
-import md5
+import hashlib
 from time import sleep
 from Levenshtein import ratio
 
@@ -41,7 +41,7 @@ class TemplateEdit(object):
         """
         self.template = tpl
         self.orig_string = unicode(self.template)
-        r = md5.md5()
+        r = hashlib.md5()
         r.update(self.orig_string.encode('utf-8'))
         self.orig_hash = r.hexdigest()
         self.classification = None
@@ -297,17 +297,20 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
                 else:
                     continue
 
-        boa = resp.get('best_oa_location', None)
         if only_unpaywall:
             # Just give up when Unpaywall doesn't know an OA location.
             if not resp['is_oa']:
                 return None
         # If we have Unpaywall data, use it and prefer identifiers.
-        if boa:
-            if boa['host_type'] == 'publisher':
-                # If we're coming from the DOI rather add doi-access=free
-                # Avoid getting publisher URLs from Unpaywall or Dissemin
+        boa = resp.get('best_oa_location', None)
+        if boa and boa['host_type'] == 'publisher':
+            # If we're coming from the DOI rather add doi-access=free
+            # Avoid getting publisher URLs from Unpaywall or Dissemin
+            if len(resp['oa_locations']) <= 1:
                 return False
+            else:
+                boa = resp['oa_locations'][1]
+        if boa:
             if 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
                 # Use the CiteSeerX URL which gets converted to the parameter
                 return resp['best_oa_location']['url_for_landing_page']
