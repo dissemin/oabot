@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Sequence
@@ -64,7 +64,7 @@ class UserStats(Base):
     @classmethod
     def sync_from_wikipedia(cls, wiki, dct):
         session = get_session()()
-        for user, value in dct.items():
+        for user, value in list(dct.items()):
             instance = session.query(cls).filter_by(wiki=wiki, user_name=user).first()
             if not instance:
                 instance = cls(wiki=wiki, user_name=user, nb_edits=value, nb_links=value)

@@ -81,7 +81,7 @@ def make_new_wikicode_for_bot(text, template_hash, proposed_addition, page_name)
             except ValueError:
                 app.logger.exception('update_template failed on {}'.format(page_name))
                 pass # TODO report to the user
-    return unicode(wikicode), change_made
+    return str(wikicode), change_made
 
 
 if __name__ == '__main__':

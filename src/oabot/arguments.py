@@ -1,16 +1,16 @@
 # -*- encoding: utf-8 -*-
 
-from __future__ import unicode_literals
+
 import re
 try:
     from urllib.parse import unquote
 except ImportError:
-    from urllib import unquote
+    from urllib.parse import unquote
 
 # helper
 def get_value(template, param):
     if template.has(param, ignore_empty=True):
-        return unicode(template.get(param).value).strip()
+        return str(template.get(param).value).strip()
 
 ##############
 # Edit logic #
