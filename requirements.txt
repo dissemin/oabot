@@ -1,9 +1,7 @@
 configparser
 docopt
 flask
-multiprocessing
 mwoauth
-mysql
 pyOpenSSL
 pypdf2
 python-Levenshtein
