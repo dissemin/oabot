@@ -1,5 +1,5 @@
 ---
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: oabotrefresh
@@ -16,21 +16,21 @@ spec:
         metadata:
           labels:
             toolforge: tool
-            spec:
+        spec:
           containers:
           - name: oabotrefresh
             workingDir: /data/project/oabot/www/python/
-            image: docker-registry.tools.wmflabs.org/toolforge-python2-sssd-base:latest
+            image: docker-registry.tools.wmflabs.org/toolforge-python37-sssd-base:latest
             resources:
             # See T273601#6802229
             # Prefilling is usually CPU-bound with 5-10 threads. If there are crashes
             # for insufficient memory, reduce threads in bot.py and maybe ask more resources.
               requests:
-                memory: "8Gi"
-                cpu: "2"
+                memory: "1Gi"
+                cpu: "500m"
               limits:
-                memory: "8Gi"
-                cpu: "2"
+                memory: "4Gi"
+                cpu: "1"
             args:
             - /bin/sh
             - -c
@@ -38,7 +38,4 @@ spec:
             env:
             - name: HOME
               value: /data/project/oabot
-          completions: 1
-          parallelism: 1
-          backoffLimit: 1
           restartPolicy: Never
