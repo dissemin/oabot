@@ -6,8 +6,8 @@ import tempfile
 import shutil
 import os
 import requests
-import PyPDF2
-from PyPDF2.utils import PyPdfError
+import pypdf
+from pypdf.errors import PyPdfError
 from io import StringIO
 
 class RunnableError(Exception):
@@ -34,7 +34,7 @@ class AcademicPaperFilter(object):
         """
         try:
             s_io = StringIO(data)
-            reader = PyPDF2.PdfFileReader(s_io)
+            reader = pypdf.PdfReader(s_io)
             num_pages = reader.getNumPages()
             print(("num pages: %d" % num_pages))
             return num_pages > 2
