@@ -2,7 +2,8 @@
 import requests
 import json
 
-from jinja2 import pass_eval_context, Markup
+from jinja2 import pass_eval_context
+from markupsafe import Markup
 
 @pass_eval_context
 def wikirender(eval_ctx, wikicode):
