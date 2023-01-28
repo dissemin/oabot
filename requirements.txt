@@ -3,7 +3,7 @@ docopt
 flask
 mwoauth
 pyOpenSSL
-pypdf2
+pypdf
 python-Levenshtein
 pywikibot
 pyyaml
