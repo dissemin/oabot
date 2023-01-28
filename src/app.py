@@ -41,21 +41,6 @@ from oabot import main
 from oabot import wikirender
 from oabot.userstats import UserStats
 
-import urllib3
-import urllib3.contrib.pyopenssl
-import importlib
-urllib3.disable_warnings()
-urllib3.contrib.pyopenssl.inject_into_urllib3()
-
-import sys
-if sys.version_info.major < 3:
-    importlib.reload(sys)
-try:
-    sys.setdefaultencoding('utf8')
-except AttributeError:
-    # Nothing to do in Python3
-    pass
-
 app = flask.Flask(__name__,
                   static_folder=os.path.join('oabot', 'static'))
 app.jinja_loader = jinja2.FileSystemLoader(os.path.join('oabot', 'templates'))
