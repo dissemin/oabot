@@ -38,7 +38,7 @@ def prefill_cache(max_pages=5000):
     sortedpages = []
     # TODO: Use timestamp to allow working only on recently updated pages
     for p in pages:
-        sortedpages.append(p.title().encode('utf-8'))
+        sortedpages.append(p.title())
     random.shuffle(sortedpages)
 
     print(("INFO: Will start working on {} pages".format(len(sortedpages))))
