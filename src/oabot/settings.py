@@ -1,5 +1,5 @@
 # -*- encocding: utf-8 -*-
-from __future__ import unicode_literals
+
 import os
 
 # App mount point, if the environment variable 'OABOT_DEV' is defined then

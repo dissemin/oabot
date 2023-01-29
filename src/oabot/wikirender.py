@@ -2,9 +2,10 @@
 import requests
 import json
 
-from jinja2 import evalcontextfilter, Markup
+from jinja2 import pass_eval_context
+from markupsafe import Markup
 
-@evalcontextfilter
+@pass_eval_context
 def wikirender(eval_ctx, wikicode):
     """
     Converts wikicode to the resulting HTML

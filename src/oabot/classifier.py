@@ -1,14 +1,14 @@
 # -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
 
-from settings import *
+
+from .settings import *
 import tempfile
 import shutil
 import os
 import requests
-import PyPDF2
-from PyPDF2.utils import PyPdfError
-from StringIO import StringIO
+import pypdf
+from pypdf.errors import PyPdfError
+from io import StringIO
 
 class RunnableError(Exception):
     pass
@@ -25,7 +25,7 @@ class AcademicPaperFilter(object):
                     OABOT_USER_AGENT}, verify=False, timeout=10)
             return self.check_nb_pages(r.content)
         except requests.exceptions.RequestException as e:
-            print e
+            print(e)
             return False
 
    def check_nb_pages(self, data):
@@ -34,9 +34,9 @@ class AcademicPaperFilter(object):
         """
         try:
             s_io = StringIO(data)
-            reader = PyPDF2.PdfFileReader(s_io)
+            reader = pypdf.PdfReader(s_io)
             num_pages = reader.getNumPages()
-            print("num pages: %d" % num_pages)
+            print(("num pages: %d" % num_pages))
             return num_pages > 2
         except PyPdfError as e:
             return False

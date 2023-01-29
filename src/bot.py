@@ -39,7 +39,7 @@ def run_bot_on_page(proposed_edits, template_param, access_token=None, site=None
             return True
     except ValueError:
         app.logger.exception('perform_bot_edit failed on {}'.format(page_name))
-    except (pywikibot.exceptions.OtherPageSaveError, requests.exceptions.ReadTimeout):
+    except (pywikibot.exceptions.LockedPageError, pywikibot.exceptions.OtherPageSaveError, requests.exceptions.ReadTimeout):
         app.logger.exception('perform_bot_edit was rejected or timed out on {}'.format(page_name))
     return False
 
@@ -81,7 +81,7 @@ def make_new_wikicode_for_bot(text, template_hash, proposed_addition, page_name)
             except ValueError:
                 app.logger.exception('update_template failed on {}'.format(page_name))
                 pass # TODO report to the user
-    return unicode(wikicode), change_made
+    return str(wikicode), change_made
 
 
 if __name__ == '__main__':

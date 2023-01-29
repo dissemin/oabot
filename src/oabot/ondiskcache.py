@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
+
 import datetime
-import cPickle
+import pickle
 from os.path import isfile
 
 class OnDiskCache(object):
@@ -15,11 +15,11 @@ class OnDiskCache(object):
     def load(self):
         if isfile(self.path):
             with open(self.path, 'rb') as f:
-                self.store = cPickle.load(f)
+                self.store = pickle.load(f)
         else:
             self.store = {}
             with open(self.path, 'wb') as f:
-                cPickle.dump(self.store, f)
+                pickle.dump(self.store, f)
 
     def fresh(self, date):
         return date+self.ttl > datetime.date.today()
@@ -34,13 +34,13 @@ class OnDiskCache(object):
         if reload_before:
             new_store = {}
             with open(self.path, 'rb') as f:
-                new_store = cPickle.load(f)
+                new_store = pickle.load(f)
             self.store.update(new_store)
         
         self.prune()
 
         with open(self.path, 'wb') as f:
-            cPickle.dump(self.store, f)
+            pickle.dump(self.store, f)
 
     def __contains__(self, url):
         return url in self.store and self.fresh(self.store[url][0])
@@ -54,7 +54,7 @@ class OnDiskCache(object):
 
     def print_contents(self):
         for k in self.store:
-            print '\t'.join([unicode(self.store[k][1]), k])
+            print('\t'.join([str(self.store[k][1]), k]))
 
     def cached(self, fun):
         def new_fun(arg):

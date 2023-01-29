@@ -7,7 +7,6 @@
 # Distributed under the terms of the MIT license.
 #
 
-import multiprocessing
 import pywikibot
 import sys
 import random
@@ -39,16 +38,12 @@ def prefill_cache(max_pages=5000):
     sortedpages = []
     # TODO: Use timestamp to allow working only on recently updated pages
     for p in pages:
-        sortedpages.append(p.title().encode('utf-8'))
+        sortedpages.append(p.title())
     random.shuffle(sortedpages)
 
-    print("INFO: Will start working on {} pages".format(len(sortedpages)))
-    pool = multiprocessing.Pool(5)
-    for p in pool.map(worker, sortedpages):
-        print(".")
-        if count >= max_pages:
-            break
-        count += 1
+    print(("INFO: Will start working on {} pages".format(len(sortedpages))))
+    for p in sortedpages:
+        worker(p)
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:

@@ -12,6 +12,10 @@ apicache/
 src/cache/*.json
 src/oabot/templates/change_*.html
 # Secret
+config.yaml
 zotero_cache_key.txt
+dbconfig.py
+user-config.py
+user-password.py
 # Toolsforge config
 uwsgi.ini
