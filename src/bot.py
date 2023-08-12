@@ -1,6 +1,8 @@
 from app import *
 from time import sleep
 import pywikibot
+from pywikibot.exceptions import *
+from requests.exceptions import *
 
 def run_bot(template_param, access_token=None, site=None, max_edits=100000):
     cached_pages = list_cache_contents('bot_cache/')
@@ -39,7 +41,7 @@ def run_bot_on_page(proposed_edits, template_param, access_token=None, site=None
             return True
     except ValueError:
         app.logger.exception('perform_bot_edit failed on {}'.format(page_name))
-    except (pywikibot.exceptions.LockedPageError, pywikibot.exceptions.OtherPageSaveError, requests.exceptions.ReadTimeout):
+    except (LockedPageError, OtherPageSaveError, ReadTimeout):
         app.logger.exception('perform_bot_edit was rejected or timed out on {}'.format(page_name))
     return False
 

@@ -472,6 +472,7 @@ def stream_url():
     if 'Content-Disposition' in r.headers:
         response.headers['Content-Disposition'] = r.headers['Content-Disposition'].replace("attachment;", "inline;")
     else:
+    # Explicit inline even though it should be the default
         response.headers['Content-Disposition'] = "inline"
     # Work around incorrect application/octet-stream
     if 'zenodo.org' in url:
