@@ -316,7 +316,7 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
         if boa:
             if 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
                 # Use the CiteSeerX URL which gets converted to the parameter
-                return resp['best_oa_location']['url_for_landing_page']
+                return resp['best_oa_location']['url_for_landing_page'].replace("/summary", "/download")
             else:
                 if 'hdl.handle.net' in boa['url_for_landing_page']:
                     url = boa['url_for_landing_page']

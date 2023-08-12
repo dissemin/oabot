@@ -461,8 +461,8 @@ def redirect_to_url():
 def stream_url():
     url = flask.request.args.get('url')
     r = requests.get(url)
-    # If it's just an HTML page served over HTTPS, no problem
-    if url.startswith('https://') and ( 'text/html' in r.headers['Content-Type'] ):
+    # We mostly need to upgrade PDF files from HTTP to HTTPS; serve the rest as is
+    if 'pdf' not in r.headers['Content-Type'] and 'application/octet-stream' not in r.headers['Content-Type']:
         return flask.redirect(flask.url_for('redirect_to_url', url=url))
 
     response = flask.make_response()
