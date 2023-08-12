@@ -144,9 +144,9 @@ eupmid_argument = ArgumentMapping(
         custom_access=True)
 citeseerx_argument = ArgumentMapping(
         'citeseerx',
-        r'https?://citeseerx\.ist\.psu\.edu/viewdoc/(summary|download)\?doi=([0-9.]*)(&.*)?',
+        r'https?://citeseerx\.ist\.psu\.edu/(?:doc/|viewdoc/(?:summary|download)\?doi=)([0-9.]*)(&.*)?',
         alternate_names=['CITESEERX'],
-        group_id=2,
+        group_id=1,
         always_free=True)
 url_argument =  UrlArgumentMapping(
         'url',
