@@ -88,8 +88,8 @@ class UserStats(Base):
         if type(self.user_name) == str:
             try:
                 return self.user_name.decode('ascii')
-            except UnicodeDecodeError as e:
-                return "user"
+            except (UnicodeDecodeError, AttributeError) as e:
+                return self.user_name
         else:
             return self.user_name
 
