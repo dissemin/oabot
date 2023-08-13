@@ -97,7 +97,12 @@ class TemplateEdit(object):
         if already_oa_param:
             self.classification = 'already_open'
             self.conflicting_value = already_oa_value
-            return
+            if already_oa_param in ['doi']:
+                # We'll need to double check the publisher URL.
+                pass
+            else:
+                # The status quo is good enough.
+                return
 
         # --- Disabled for now ----
         # If the template is marked with |registration= or
@@ -131,6 +136,14 @@ class TemplateEdit(object):
                 return
         if not link:
             self.classification = 'not_found'
+            if get_value(self.template, 'doi-access') in ['free']:
+                # There is no OA link but the DOI was previously considered OA.
+                # This was probably en ephemeral bronze OA paper.
+                # Remove the previous doi-access statement.
+                self.proposed_change = "doi-access=|"
+            else:
+                # Nothing to see? Publisher URLs may need correction.
+                pass
             return
 
         # We found an OA link!
@@ -156,6 +169,7 @@ class TemplateEdit(object):
             # If this parameter is already present in the template:
             current_value = argmap.get(self.template)
             if current_value:
+                # TODO: Unused variable?
                 change['new_'+argmap.name] = (match,link)
 
                 #if argmap.custom_access:
@@ -166,13 +180,19 @@ class TemplateEdit(object):
                 self.classification = 'already_present'
                 if argmap.name == 'hdl':
                     self.proposed_change = "hdl-access=free"
-                # don't change anything else
-                return
+                    # don't change anything else
+                    return
+                if argmap.name == 'url':
+                    # We may want to change the URL. Propose it after cleanup.
+                    self.proposed_change = "url-access=|url-status=|archive-url=|archive-date=|"
+                else:
+                    # Do not override existing parameters.
+                    return
 
             if argmap.is_id:
-                self.proposed_change = 'id={{%s|%s}}' % (argmap.name,match)
+                self.proposed_change += 'id={{%s|%s}}' % (argmap.name,match)
             else:
-                self.proposed_change = '%s=%s' % (argmap.name,match)
+                self.proposed_change += '%s=%s' % (argmap.name,match)
                 if argmap.name == 'hdl':
                     self.proposed_change += "|hdl-access=free"
             break

@@ -36,7 +36,7 @@ def run_bot_on_page(proposed_edits, template_param, access_token=None, site=None
 
     try:
         app.logger.info('Attempting change on {}: {}'.format(page_name, change))
-        change_made = perform_bot_edit(page_name, '[[Wikipedia:OABOT|Open access bot]]: {} added to citation with #oabot.'.format(', '.join(set(ids_touched))), proposed_additions, access_token=access_token, site=site)
+        change_made = perform_bot_edit(page_name, '[[Wikipedia:OABOT|Open access bot]]: {} updated in citation with #oabot.'.format(', '.join(set(ids_touched))), proposed_additions, access_token=access_token, site=site)
         if change_made:
             return True
     except ValueError:
