@@ -7,6 +7,7 @@
 # Distributed under the terms of the MIT license.
 #
 
+from multiprocessing import Pool, TimeoutError
 import pywikibot
 import sys
 import random
@@ -42,8 +43,13 @@ def prefill_cache(max_pages=5000):
     random.shuffle(sortedpages)
 
     print(("INFO: Will start working on {} pages".format(len(sortedpages))))
-    for p in sortedpages:
-        worker(p)
+    # Takes almost 1 GB of RAM. With 20 processes, more than 1 CPU is needed.
+    with Pool(processes=10) as pool:
+        for p in pool.imap(worker, sortedpages, 1000):
+            print(".")
+            if count >= max_pages:
+                break
+            count += 1
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
