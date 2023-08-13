@@ -78,7 +78,9 @@ def make_new_wikicode_for_bot(text, template_hash, proposed_addition, page_name)
         if edit.orig_hash == template_hash:
             try:
                 for proposed_parameter in proposed_addition.split("|"):
-                    edit.update_template(proposed_parameter)
+                    # Ignore empty strings after a pipe
+                    if proposed_parameter:
+                        edit.update_template(proposed_parameter)
                 change_made = True
             except ValueError:
                 app.logger.exception('update_template failed on {}'.format(page_name))
