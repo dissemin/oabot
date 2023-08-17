@@ -121,10 +121,10 @@ class TemplateEdit(object):
 
         # Otherwise, try to get a free link
         doi = reference.get('ID_list', {}).get('DOI')
-        link = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
-        if link is False:
+        link, oa_status = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
+        if oa_status in ['gold', 'hybrid', 'bronze']:
             self.classification = 'already_open'
-            if doi:
+            if doi and not already_oa_param:
                 self.proposed_change = "doi-access=free"
                 self.proposed_link = "https://doi.org/{}".format(doi)
                 return
@@ -136,7 +136,7 @@ class TemplateEdit(object):
                 return
         if not link:
             self.classification = 'not_found'
-            if get_value(self.template, 'doi-access') in ['free']:
+            if get_value(self.template, 'doi-access') in ['free'] and oa_status == "closed":
                 # There is no OA link but the DOI was previously considered OA.
                 # This was probably en ephemeral bronze OA paper.
                 # Remove the previous doi-access statement.
@@ -323,27 +323,27 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
         if only_unpaywall:
             # Just give up when Unpaywall doesn't know an OA location.
             if not resp['is_oa']:
-                return None
+                return None, "closed"
         # If we have Unpaywall data, use it and prefer identifiers.
         boa = resp.get('best_oa_location', None)
         if boa and boa['host_type'] == 'publisher':
             # If we're coming from the DOI rather add doi-access=free
             # Avoid getting publisher URLs from Unpaywall or Dissemin
             if len(resp['oa_locations']) <= 1:
-                return False
+                return False, resp['oa_status']
             else:
                 boa = resp['oa_locations'][1]
         if boa:
             if 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
                 # Use the CiteSeerX URL which gets converted to the parameter
-                return resp['best_oa_location']['url_for_landing_page'].replace("/summary", "/download")
+                return resp['best_oa_location']['url_for_landing_page'].replace("/summary", "/download"), resp['oa_status']
             else:
                 if 'hdl.handle.net' in boa['url_for_landing_page']:
                     url = boa['url_for_landing_page']
                 else:
                     url = boa['url']
                 if not is_blacklisted(url):
-                    return url
+                    return url, resp['oa_status']
 
         for oa_location in resp.get('oa_locations') or []:
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
@@ -365,9 +365,11 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
                     # Redirects to main page: fake status code, should be not found
                     continue
                 if not is_blacklisted(url):
-                    return url
+                    return url, resp['oa_status']
             except requests.exceptions.RequestException:
                 continue
+
+    return None, "unknown"
 
 def add_oa_links_in_references(text, page, only_doi=False):
     """
