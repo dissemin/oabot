@@ -4,7 +4,7 @@ import pywikibot
 from pywikibot.exceptions import *
 from requests.exceptions import *
 
-def run_bot(template_param, access_token=None, site=None, max_edits=100000):
+def run_bot(template_param, access_token=None, site=None, max_edits=100000, remove=False):
     cached_pages = list_cache_contents('bot_cache/')
     edits_made = 0
     for page_name in cached_pages:
@@ -12,13 +12,13 @@ def run_bot(template_param, access_token=None, site=None, max_edits=100000):
         cache_fname = 'bot_cache/'+to_cache_name(page_name)
         with open(cache_fname, 'r') as f:
             page_json = json.load(f)
-        if run_bot_on_page(page_json, template_param, access_token=access_token, site=site):
+        if run_bot_on_page(page_json, template_param, access_token=access_token, site=site, remove=remove):
             edits_made += 1
             sleep(10)
         if edits_made >= max_edits:
             return
 
-def run_bot_on_page(proposed_edits, template_param, access_token=None, site=None):
+def run_bot_on_page(proposed_edits, template_param, access_token=None, site=None, remove=False):
     page_name = proposed_edits['page_name']
     proposed_additions = {}
     ids_touched = []
@@ -28,6 +28,8 @@ def run_bot_on_page(proposed_edits, template_param, access_token=None, site=None
         change = edit['proposed_change']
         match = re.findall(r'^' + template_param, change)
         if match:
+            if not remove and change == "doi-access=|":
+                continue
             proposed_additions[template_hash] = change
             ids_touched += match
 
@@ -91,7 +93,12 @@ def make_new_wikicode_for_bot(text, template_hash, proposed_addition, page_name)
 if __name__ == '__main__':
     import sys
     template_param = sys.argv[1]
+    # Don't remove existing parameters unless requested
+    if len(sys.argv) > 2 and sys.argv[2] == "--remove":
+        remove = True
+    else:
+        remove = False
     app.logger.info("Starting additions for parameter: {}".format(template_param))
     site = pywikibot.Site()
     site.login()
-    run_bot(template_param, site=site)
+    run_bot(template_param, site=site, remove=remove)
