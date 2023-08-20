@@ -1,14 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 from wikiciteparser.parser import parse_citation_template
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib.parse import urlencode
-try:
-    import urllib.parse
-except ImportError:
-    from urllib.parse import urlparse
+from urllib.parse import urlencode
+from urllib.parse import urlparse
 import mwparserfromhell
 import requests
 import json
@@ -198,8 +192,12 @@ class TemplateEdit(object):
             break
 
         # If we are going to add an URL, check it's not probably redundant
-        if self.proposed_change.startswith('url='):
+        if self.proposed_change.startswith('url'):
             hdl = get_value(self.template, 'hdl')
+            url = get_value(self.template, 'url').strip()
+            # Avoid proposing e.g. a direct PDF URL from the same domain we already link
+            if url and urlparse(url).hostname in self.proposed_change:
+                self.proposed_change = ""
             if hdl and hdl in self.proposed_change:
                 # Don't actually add the URL but mark the hdl as seemingly OA
                 # and hope that the templates will later linkify it
