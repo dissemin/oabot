@@ -1,14 +1,8 @@
 # -*- encoding: utf-8 -*-
 
 from wikiciteparser.parser import parse_citation_template
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib.parse import urlencode
-try:
-    import urllib.parse
-except ImportError:
-    from urllib.parse import urlparse
+from urllib.parse import urlencode
+from urllib.parse import urlparse
 import mwparserfromhell
 import requests
 import json
@@ -97,7 +91,12 @@ class TemplateEdit(object):
         if already_oa_param:
             self.classification = 'already_open'
             self.conflicting_value = already_oa_value
-            return
+            if already_oa_param in ['doi']:
+                # We'll need to double check the publisher URL.
+                pass
+            else:
+                # The status quo is good enough.
+                return
 
         # --- Disabled for now ----
         # If the template is marked with |registration= or
@@ -116,10 +115,10 @@ class TemplateEdit(object):
 
         # Otherwise, try to get a free link
         doi = reference.get('ID_list', {}).get('DOI')
-        link = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
-        if link is False:
+        link, oa_status = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
+        if oa_status in ['gold', 'hybrid', 'bronze']:
             self.classification = 'already_open'
-            if doi:
+            if doi and not already_oa_param:
                 self.proposed_change = "doi-access=free"
                 self.proposed_link = "https://doi.org/{}".format(doi)
                 return
@@ -131,6 +130,14 @@ class TemplateEdit(object):
                 return
         if not link:
             self.classification = 'not_found'
+            if get_value(self.template, 'doi-access') in ['free'] and oa_status == "closed":
+                # There is no OA link but the DOI was previously considered OA.
+                # This was probably en ephemeral bronze OA paper.
+                # Remove the previous doi-access statement.
+                self.proposed_change = "doi-access=|"
+            else:
+                # Nothing to see? Publisher URLs may need correction.
+                pass
             return
 
         # We found an OA link!
@@ -156,6 +163,7 @@ class TemplateEdit(object):
             # If this parameter is already present in the template:
             current_value = argmap.get(self.template)
             if current_value:
+                # TODO: Unused variable?
                 change['new_'+argmap.name] = (match,link)
 
                 #if argmap.custom_access:
@@ -166,20 +174,30 @@ class TemplateEdit(object):
                 self.classification = 'already_present'
                 if argmap.name == 'hdl':
                     self.proposed_change = "hdl-access=free"
-                # don't change anything else
-                return
+                    # don't change anything else
+                    return
+                if argmap.name == 'url':
+                    # We may want to change the URL. Propose it after cleanup.
+                    self.proposed_change = "url-access=|url-status=|archive-url=|archive-date=|"
+                else:
+                    # Do not override existing parameters.
+                    return
 
             if argmap.is_id:
-                self.proposed_change = 'id={{%s|%s}}' % (argmap.name,match)
+                self.proposed_change += 'id={{%s|%s}}' % (argmap.name,match)
             else:
-                self.proposed_change = '%s=%s' % (argmap.name,match)
+                self.proposed_change += '%s=%s' % (argmap.name,match)
                 if argmap.name == 'hdl':
                     self.proposed_change += "|hdl-access=free"
             break
 
         # If we are going to add an URL, check it's not probably redundant
-        if self.proposed_change.startswith('url='):
+        if self.proposed_change.startswith('url'):
             hdl = get_value(self.template, 'hdl')
+            url = get_value(self.template, 'url').strip()
+            # Avoid proposing e.g. a direct PDF URL from the same domain we already link
+            if url and urlparse(url).hostname in self.proposed_change:
+                self.proposed_change = ""
             if hdl and hdl in self.proposed_change:
                 # Don't actually add the URL but mark the hdl as seemingly OA
                 # and hope that the templates will later linkify it
@@ -303,27 +321,27 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
         if only_unpaywall:
             # Just give up when Unpaywall doesn't know an OA location.
             if not resp['is_oa']:
-                return None
+                return None, "closed"
         # If we have Unpaywall data, use it and prefer identifiers.
         boa = resp.get('best_oa_location', None)
         if boa and boa['host_type'] == 'publisher':
             # If we're coming from the DOI rather add doi-access=free
             # Avoid getting publisher URLs from Unpaywall or Dissemin
             if len(resp['oa_locations']) <= 1:
-                return False
+                return False, resp['oa_status']
             else:
                 boa = resp['oa_locations'][1]
         if boa:
             if 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
                 # Use the CiteSeerX URL which gets converted to the parameter
-                return resp['best_oa_location']['url_for_landing_page'].replace("/summary", "/download")
+                return resp['best_oa_location']['url_for_landing_page'].replace("/summary", "/download"), resp['oa_status']
             else:
                 if 'hdl.handle.net' in boa['url_for_landing_page']:
                     url = boa['url_for_landing_page']
                 else:
                     url = boa['url']
                 if not is_blacklisted(url):
-                    return url
+                    return url, resp['oa_status']
 
         for oa_location in resp.get('oa_locations') or []:
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
@@ -345,9 +363,11 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
                     # Redirects to main page: fake status code, should be not found
                     continue
                 if not is_blacklisted(url):
-                    return url
+                    return url, resp['oa_status']
             except requests.exceptions.RequestException:
                 continue
+
+    return None, "unknown"
 
 def add_oa_links_in_references(text, page, only_doi=False):
     """
