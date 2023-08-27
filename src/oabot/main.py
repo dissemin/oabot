@@ -194,7 +194,9 @@ class TemplateEdit(object):
         # If we are going to add an URL, check it's not probably redundant
         if self.proposed_change.startswith('url'):
             hdl = get_value(self.template, 'hdl')
-            url = get_value(self.template, 'url').strip()
+            url = get_value(self.template, 'url')
+            if url:
+                url = url.strip()
             # Avoid proposing e.g. a direct PDF URL from the same domain we already link
             if url and urlparse(url).hostname in self.proposed_change:
                 self.proposed_change = ""
