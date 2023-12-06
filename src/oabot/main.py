@@ -26,6 +26,9 @@ from Levenshtein import ratio
 urls_cache = OnDiskCache('urls_cache.pkl')
 paper_filter = AcademicPaperFilter()
 
+SESSION = requests.Session()
+SESSION.headers.update({'User-Agent': 'Wikimedia oabot not Googlebot'})
+
 class TemplateEdit(object):
     """
     This represents a proposed change (possibly empty)
@@ -130,11 +133,17 @@ class TemplateEdit(object):
                 return
         if not link:
             self.classification = 'not_found'
-            if get_value(self.template, 'doi-access') in ['free'] and oa_status == "closed":
-                # There is no OA link but the DOI was previously considered OA.
-                # This was probably en ephemeral bronze OA paper.
-                # Remove the previous doi-access statement.
-                self.proposed_change = "doi-access=|"
+            if oa_status == "closed":
+                self.proposed_change = ""
+                if get_value(self.template, 'doi-access') in ['free']:
+                    # There is no OA link but the DOI was previously considered OA.
+                    # This was probably en ephemeral bronze OA paper.
+                    # Remove the previous doi-access statement.
+                    self.proposed_change += "doi-access=|"
+                old_url = get_value(self.template, 'url')
+                if old_url and "http" in old_url:
+                    # Probably the existing link is closed.
+                    self.proposed_change += "url-access=subscription"
             else:
                 # Nothing to see? Publisher URLs may need correction.
                 pass
@@ -203,6 +212,11 @@ class TemplateEdit(object):
             # Avoid proposing e.g. a direct PDF URL from the same domain we already link
             if url and urlparse(url).hostname in self.proposed_change:
                 self.proposed_change = ""
+            # Also avoid replacing URLs which clearly already point to an open PDF
+            elif url:
+                r = SESSION.head(url, timeout=5)
+                if int(r.headers.get('Content-Length', 0)) > 10000 and 'pdf' in r.headers.get('Content-Type', ''):
+                    self.proposed_change = ""
             if hdl and hdl in self.proposed_change:
                 # Don't actually add the URL but mark the hdl as seemingly OA
                 # and hope that the templates will later linkify it
@@ -312,7 +326,7 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
         while resp is None:
             email = '{}@{}.in'.format('contact', 'dissem')
             try:
-                req = requests.get('http://api.unpaywall.org/v2/:{}'.format(doi), params={'email':email}, timeout=10)
+                req = requests.get('https://api.unpaywall.org/v2/:{}'.format(doi), params={'email':email}, timeout=10)
                 resp = req.json()
                 sleep(0.15)
             except ValueError:
@@ -333,20 +347,20 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
             # If we're coming from the DOI rather add doi-access=free
             # Avoid getting publisher URLs from Unpaywall or Dissemin
             if len(resp['oa_locations']) <= 1:
-                return False, resp['oa_status']
+                return False, resp.get('oa_status', None)
             else:
                 boa = resp['oa_locations'][1]
         if boa:
             if 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
                 # Use the CiteSeerX URL which gets converted to the parameter
-                return resp['best_oa_location']['url_for_landing_page'].replace("/summary", "/download"), resp['oa_status']
+                return resp['best_oa_location']['url_for_landing_page'].replace("/summary", "/download"), resp.get('oa_status', None)
             else:
                 if 'hdl.handle.net' in boa['url_for_landing_page']:
                     url = boa['url_for_landing_page']
                 else:
                     url = boa['url']
                 if not is_blacklisted(url):
-                    return url, resp['oa_status']
+                    return url, resp.get('oa_status', None)
 
         for oa_location in resp.get('oa_locations') or []:
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
