@@ -326,7 +326,7 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
         while resp is None:
             email = '{}@{}.in'.format('contact', 'dissem')
             try:
-                req = requests.get('http://api.unpaywall.org/v2/:{}'.format(doi), params={'email':email}, timeout=10)
+                req = requests.get('https://api.unpaywall.org/v2/:{}'.format(doi), params={'email':email}, timeout=10)
                 resp = req.json()
                 sleep(0.15)
             except ValueError:
