@@ -178,7 +178,10 @@ class TemplateEdit(object):
                     return
                 if argmap.name == 'url':
                     # We may want to change the URL. Propose it after cleanup.
-                    self.proposed_change = "url-access=|url-status=|archive-url=|archive-date=|"
+                    for para in ['url-access', 'url-status', 'archive-url', 'archive-date']:
+                        # Override existing URL archival parameters only if present.
+                        if self.template.has(para):
+                            self.proposed_change += f"{para}=|"
                 else:
                     # Do not override existing parameters.
                     return
