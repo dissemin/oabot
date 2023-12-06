@@ -372,17 +372,21 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
 
     # Full text detection is not always accurate, so we try to pick
     # the URL which is most useful for citation templates and we
-    # doule check that it's still up.
+    # double check that it's still up.
     for url in sort_links(candidate_urls):
         if url:
             try:
-                head = requests.head(url, timeout=10)
+                head = SESSION.head(url, timeout=10)
                 head.raise_for_status()
                 if head.status_code < 400 and 'Location' in head.headers and urllib.parse.urlparse(head.headers['Location']).path == '/':
                     # Redirects to main page: fake status code, should be not found
                     continue
                 if not is_blacklisted(url):
-                    return url, resp['oa_status']
+                    try:
+                        return url, resp.get('oa_status', None)
+                    except NameError:
+                        # Probably we had no DOI to check Unpaywall for
+                        return url, None
             except requests.exceptions.RequestException:
                 continue
 
