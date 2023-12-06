@@ -27,7 +27,7 @@ urls_cache = OnDiskCache('urls_cache.pkl')
 paper_filter = AcademicPaperFilter()
 
 SESSION = requests.Session()
-SESSION.headers.update({'User-Agent': 'Wikimedia oabot not Googlebot'})
+SESSION.headers.update({'User-Agent': OABOT_USER_AGENT})
 
 class TemplateEdit(object):
     """
@@ -214,8 +214,11 @@ class TemplateEdit(object):
                 self.proposed_change = ""
             # Also avoid replacing URLs which clearly already point to an open PDF
             elif url:
-                r = SESSION.head(url, timeout=5)
-                if int(r.headers.get('Content-Length', 0)) > 10000 and 'pdf' in r.headers.get('Content-Type', ''):
+                try:
+                    r = SESSION.head(url, timeout=5)
+                except requests.exceptions.RequestException:
+                    r = None
+                if r and int(r.headers.get('Content-Length', 0)) > 10000 and 'pdf' in r.headers.get('Content-Type', ''):
                     self.proposed_change = ""
             if hdl and hdl in self.proposed_change:
                 # Don't actually add the URL but mark the hdl as seemingly OA
