@@ -212,7 +212,7 @@ class TemplateEdit(object):
             if url and urlparse(url).hostname in self.proposed_change:
                 self.proposed_change = ""
             # Also avoid replacing URLs which clearly already point to an open PDF
-            else:
+            elif url:
                 r = SESSION.head(url)
                 if int(r.headers.get('Content-Length', 0)) > 10000 and 'pdf' in r.headers.get('Content-Type', ''):
                     self.proposed_change = ""
