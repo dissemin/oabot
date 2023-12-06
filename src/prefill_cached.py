@@ -9,8 +9,9 @@
 
 from app import get_proposed_edits, app
 import os
+from random import shuffle
 
-for page in os.listdir("cache"):
+for page in shuffle(os.listdir("cache")):
     if page.endswith("json"):
         title = page.replace(".json", "").replace("#", "/")
         print(title)
