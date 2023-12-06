@@ -140,10 +140,14 @@ class TemplateEdit(object):
                     # This was probably en ephemeral bronze OA paper.
                     # Remove the previous doi-access statement.
                     self.proposed_change += "doi-access=|"
-                old_url = get_value(self.template, 'url')
-                if old_url and "http" in old_url:
+            old_url = get_value(self.template, 'url')
+            if old_url and "http" in old_url:
+                if oa_status == "closed":
                     # Probably the existing link is closed.
-                    self.proposed_change += "url-access=subscription"
+                    self.proposed_change += "url-access=subscription|"
+                elif oa_status == "unknown":
+                    # We queried Dissemin on top of Unpaywall and no result
+                    self.proposed_change += "url-access=limited|"
             else:
                 # Nothing to see? Publisher URLs may need correction.
                 pass
