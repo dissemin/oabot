@@ -347,20 +347,20 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
             # If we're coming from the DOI rather add doi-access=free
             # Avoid getting publisher URLs from Unpaywall or Dissemin
             if len(resp['oa_locations']) <= 1:
-                return False, resp['oa_status']
+                return False, resp.get('oa_status', None)
             else:
                 boa = resp['oa_locations'][1]
         if boa:
             if 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
                 # Use the CiteSeerX URL which gets converted to the parameter
-                return resp['best_oa_location']['url_for_landing_page'].replace("/summary", "/download"), resp['oa_status']
+                return resp['best_oa_location']['url_for_landing_page'].replace("/summary", "/download"), resp.get('oa_status', None)
             else:
                 if 'hdl.handle.net' in boa['url_for_landing_page']:
                     url = boa['url_for_landing_page']
                 else:
                     url = boa['url']
                 if not is_blacklisted(url):
-                    return url, resp['oa_status']
+                    return url, resp.get('oa_status', None)
 
         for oa_location in resp.get('oa_locations') or []:
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
