@@ -26,6 +26,9 @@ from Levenshtein import ratio
 urls_cache = OnDiskCache('urls_cache.pkl')
 paper_filter = AcademicPaperFilter()
 
+SESSION = requests.Session()
+SESSION.headers.update({'User-Agent': 'Wikimedia oabot not Googlebot'})
+
 class TemplateEdit(object):
     """
     This represents a proposed change (possibly empty)
@@ -130,11 +133,16 @@ class TemplateEdit(object):
                 return
         if not link:
             self.classification = 'not_found'
-            if get_value(self.template, 'doi-access') in ['free'] and oa_status == "closed":
-                # There is no OA link but the DOI was previously considered OA.
-                # This was probably en ephemeral bronze OA paper.
-                # Remove the previous doi-access statement.
-                self.proposed_change = "doi-access=|"
+            if oa_status == "closed":
+                self.proposed_change = ""
+                if get_value(self.template, 'doi-access') in ['free']:
+                    # There is no OA link but the DOI was previously considered OA.
+                    # This was probably en ephemeral bronze OA paper.
+                    # Remove the previous doi-access statement.
+                    self.proposed_change += "doi-access=|"
+                if "http" in get_value(self.template, 'url'):
+                    # Probably the existing link is closed.
+                    self.proposed_change += "url-access=subscription"
             else:
                 # Nothing to see? Publisher URLs may need correction.
                 pass
@@ -203,6 +211,11 @@ class TemplateEdit(object):
             # Avoid proposing e.g. a direct PDF URL from the same domain we already link
             if url and urlparse(url).hostname in self.proposed_change:
                 self.proposed_change = ""
+            # Also avoid replacing URLs which clearly already point to an open PDF
+            else:
+                r = SESSION.head(url)
+                if int(r.headers.get('Content-Length', 0)) > 10000 and 'pdf' in r.headers.get('Content-Type', ''):
+                    self.proposed_change = ""
             if hdl and hdl in self.proposed_change:
                 # Don't actually add the URL but mark the hdl as seemingly OA
                 # and hope that the templates will later linkify it
