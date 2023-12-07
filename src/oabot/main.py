@@ -118,7 +118,12 @@ class TemplateEdit(object):
 
         # Otherwise, try to get a free link
         doi = reference.get('ID_list', {}).get('DOI')
-        link, oa_status = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
+        try:
+            link, oa_status = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
+        except requests.exceptions.RequestException:
+            sleep(60)
+            return
+
         if oa_status in ['gold', 'hybrid', 'bronze']:
             self.classification = 'already_open'
             if doi and not already_oa_param:
