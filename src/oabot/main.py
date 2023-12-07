@@ -332,6 +332,7 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
 
     # Then, try OAdoi/Unpaywall
     # (It finds full texts that Dissemin does not, so it's always good to have!)
+    oa_status = None
     if doi:
         resp = None
         attempts = 0
@@ -352,8 +353,6 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
         # Default to Unpaywall's OA status
         if resp:
             oa_status = resp.get('oa_status', None)
-        else:
-            oa_status = None
         if oa_status and oa_status == "closed" and only_unpaywall:
             # Just give up when Unpaywall doesn't know an OA location.
             return None, "closed"
