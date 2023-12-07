@@ -350,10 +350,14 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
                     continue
 
         # Default to Unpaywall's OA status
-        oa_status = resp.get('oa_status', None)
-        if oa_status == "closed" and only_unpaywall:
+        if resp:
+            oa_status = resp.get('oa_status', None)
+        else:
+            oa_status = None
+        if oa_status and oa_status == "closed" and only_unpaywall:
             # Just give up when Unpaywall doesn't know an OA location.
             return None, "closed"
+
         # If we have Unpaywall data, use it and prefer identifiers.
         boa = resp.get('best_oa_location', None)
         if boa and boa['host_type'] == 'publisher':
@@ -404,6 +408,9 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
             except requests.exceptions.RequestException:
                 continue
 
+    if oa_status:
+        return None, oa_status
+        
     return None, "unknown"
 
 def add_oa_links_in_references(text, page, only_doi=False):
