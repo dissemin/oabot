@@ -45,6 +45,14 @@
             <input type="submit" class="btn btn-success" value="{% if username %}Start editing a random page!{% else %}Log in{% endif %}" />
         </form>
     </div>
+
+    {% if proposed_edit %}
+    <h3>Article: <a href="https://en.wikipedia.org/wiki/{{ page_name }}">{{ page_name }}</a></h3>
+    <h3>Citation</h3>
+    <div class="wiki">{{ proposed_edit.orig_string|wikirender }}</div>
+    <p><span class="addlink">Proposed link: <a href="{{ proposed_edit.proposed_link }}" target="_blank">{{ proposed_edit.proposed_link }}</a></span></p>
+    <div style="clear: both;"></div>
+    {% endif %}
     <br />
     <br />
     <br />

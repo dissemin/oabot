@@ -88,6 +88,16 @@ def index():
     }
     if context['username']:
         return flask.redirect(flask.url_for('get_random_edit'))
+    else:
+        # Try a preview
+        page_name, proposed_edits = get_random_proposed_edits()
+        if proposed_edits:
+            for edit in proposed_edits:
+                if edit and "http" in edit.get("proposed_link", ""):
+                    orig_hash = edit['orig_hash']
+                    context = get_one_proposed_edit(page_name, orig_hash)
+                    return flask.render_template("index.html", **context)
+
     return flask.render_template("index.html", **context)
 
 def edit_wiki_page(page_name, content, access_token, summary=None, bot=False):
@@ -177,6 +187,18 @@ def get_random_edit():
         return flask.redirect(flask.url_for('login', next_url=flask.url_for('get_random_edit')))
 
     # Then, redirect to a random cached edit
+    page_name, proposed_edits = get_random_proposed_edits()
+    if proposed_edits:
+        edit_idx = randint(0, len(proposed_edits)-1)
+        orig_hash = proposed_edits[edit_idx]['orig_hash']
+        return flask.redirect(
+            flask.url_for('review_one_edit', name=page_name, edit=orig_hash))
+
+    return flask.redirect(flask.url_for('index'))
+
+redirect_re = re.compile(r'#REDIRECT *\[\[(.*)\]\]')
+
+def get_random_proposed_edits():
     for page_name in list_cache_contents():
         # Randomly skip or pick the current one, about 1 % chance.
         if random() > 0.01:
@@ -188,15 +210,10 @@ def get_random_edit():
 
         proposed_edits = page_json.get('proposed_edits', [])
         proposed_edits = [template_edit for template_edit in proposed_edits if (template_edit['classification'] != 'rejected')]
-        if proposed_edits:
-            edit_idx = randint(0, len(proposed_edits)-1)
-            orig_hash = proposed_edits[edit_idx]['orig_hash']
-            return flask.redirect(
-                flask.url_for('review_one_edit', name=page_name, edit=orig_hash))
-
-    return flask.redirect(flask.url_for('index'))
-
-redirect_re = re.compile(r'#REDIRECT *\[\[(.*)\]\]')
+        if proposed_edits and len(proposed_edits) > 0:
+            return page_name, proposed_edits
+        else:
+            continue
 
 def get_proposed_edits(page_name, force, follow_redirects=True, only_doi=False):
     # Get the page

@@ -146,7 +146,7 @@ class TemplateEdit(object):
                     # Remove the previous doi-access statement.
                     self.proposed_change += "doi-access=|"
             old_url = get_value(self.template, 'url')
-            if old_url and "http" in old_url:
+            if old_url and "http" in old_url and not get_value(self.template, 'url-access'):
                 if oa_status == "closed":
                     # Probably the existing link is closed.
                     self.proposed_change += "url-access=subscription|"
