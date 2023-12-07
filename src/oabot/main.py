@@ -152,7 +152,7 @@ class TemplateEdit(object):
                     self.proposed_change += "url-access=subscription|"
                 elif oa_status == "unknown":
                     # We queried Dissemin on top of Unpaywall and no result
-                    self.proposed_change += "url-access=<!-- unknown, please check: WP:URLACCESS -->|"
+                    self.proposed_change += "url-access=<!--WP:URLACCESS-->|"
             else:
                 # Nothing to see? Publisher URLs may need correction.
                 pass
