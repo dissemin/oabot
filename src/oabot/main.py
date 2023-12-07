@@ -152,7 +152,7 @@ class TemplateEdit(object):
                     self.proposed_change += "url-access=subscription|"
                 elif oa_status == "unknown":
                     # We queried Dissemin on top of Unpaywall and no result
-                    self.proposed_change += "url-access=limited|"
+                    self.proposed_change += "url-access=<!-- unknown, please check: WP:URLACCESS -->|"
             else:
                 # Nothing to see? Publisher URLs may need correction.
                 pass
@@ -349,30 +349,32 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
                 else:
                     continue
 
-        if only_unpaywall:
+        # Default to Unpaywall's OA status
+        oa_status = resp.get('oa_status', None)
+        if oa_status == "closed" and only_unpaywall:
             # Just give up when Unpaywall doesn't know an OA location.
-            if not resp['is_oa']:
-                return None, "closed"
+            return None, "closed"
         # If we have Unpaywall data, use it and prefer identifiers.
         boa = resp.get('best_oa_location', None)
         if boa and boa['host_type'] == 'publisher':
             # If we're coming from the DOI rather add doi-access=free
             # Avoid getting publisher URLs from Unpaywall or Dissemin
-            if len(resp['oa_locations']) <= 1:
-                return False, resp.get('oa_status', None)
+            if len(resp.get('oa_locations', [])) <= 1:
+                return False, oa_status
             else:
-                boa = resp['oa_locations'][1]
+                boa = resp.get('oa_locations')[1]
         if boa:
-            if 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
+            landing_page = resp.get('best_oa_location', {}).get('url_for_landing_page', None)
+            if 'citeseerx.ist.psu.edu' in landing_page:
                 # Use the CiteSeerX URL which gets converted to the parameter
-                return resp['best_oa_location']['url_for_landing_page'].replace("/summary", "/download"), resp.get('oa_status', None)
+                return landing_page.replace("/summary", "/download"), oa_status
             else:
                 if 'hdl.handle.net' in boa['url_for_landing_page']:
                     url = boa['url_for_landing_page']
                 else:
                     url = boa['url']
                 if not is_blacklisted(url):
-                    return url, resp.get('oa_status', None)
+                    return url, oa_status
 
         for oa_location in resp.get('oa_locations') or []:
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
@@ -395,7 +397,7 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
                     continue
                 if not is_blacklisted(url):
                     try:
-                        return url, resp.get('oa_status', None)
+                        return url, "open"
                     except NameError:
                         # Probably we had no DOI to check Unpaywall for
                         return url, None

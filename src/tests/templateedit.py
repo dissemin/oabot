@@ -79,3 +79,14 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
         """)
         self.assertEqual('', edit.proposed_change)
 
+    def test_closed_url_access(self):
+        edit = self.propose_change("""
+{{cite journal |last1=de Janvry |first1=Alain |last2=Sadoulet |first2=Elisabeth |title=Income Strategies Among Rural Households in Mexico: The Role of Off-farm Activities |journal=World Development |date=1 March 2001 |volume=29 |issue=3 |pages=467–480 |doi=10.1016/S0305-750X(00)00113-3 |url=https://www.sciencedirect.com/science/article/abs/pii/S0305750X00001133 |language=en |issn=0305-750X}}"
+        """)
+        self.assertEqual('url-access=subscription|', edit.proposed_change)
+
+    def test_existing_url_access(self):
+        edit = self.propose_change("""
+{{Citation  | last = Peggy  | first = Klaus  | title = The Hard Truth About Soft Skills: Workplace Lessons Smart People Wish They'd Learned Sooner  | publisher = HarperCollins  | year = 2008  | isbn = 978-0-061-28414-4  | url-access = registration  | url = https://archive.org/details/hardtruthaboutso00klau  }}"
+        """)
+        self.assertEqual('', edit.proposed_change)
