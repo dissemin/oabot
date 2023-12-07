@@ -90,12 +90,11 @@ def index():
         return flask.redirect(flask.url_for('get_random_edit'))
     else:
         # Try a preview
-        proposed_edits = get_random_proposed_edits()
+        page_name, proposed_edits = get_random_proposed_edits()
         if proposed_edits:
             for edit in proposed_edits:
                 if "proposed_link" in edit and "http" in edit.get("proposed_link"):
                     orig_hash = edit['orig_hash']
-                    page_name = proposed_edits.get("page_name")
                     context = get_one_proposed_edit(page_name, edit_hash)
                     return flask.render_template("index.html", **context)
 
@@ -188,7 +187,7 @@ def get_random_edit():
         return flask.redirect(flask.url_for('login', next_url=flask.url_for('get_random_edit')))
 
     # Then, redirect to a random cached edit
-    proposed_edits = get_random_proposed_edits()
+    page_name, proposed_edits = get_random_proposed_edits()
     if proposed_edits:
         edit_idx = randint(0, len(proposed_edits)-1)
         orig_hash = proposed_edits[edit_idx]['orig_hash']
@@ -212,7 +211,7 @@ def get_random_proposed_edits():
         proposed_edits = page_json.get('proposed_edits', [])
         proposed_edits = [template_edit for template_edit in proposed_edits if (template_edit['classification'] != 'rejected')]
         if proposed_edits:
-            return proposed_edits
+            return page_name, proposed_edits
         else:
             continue
 
