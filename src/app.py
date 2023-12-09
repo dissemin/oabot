@@ -93,7 +93,7 @@ def index():
         page_name, proposed_edits = get_random_proposed_edits()
         if proposed_edits:
             for edit in proposed_edits:
-                if edit and "http" in edit.get("proposed_link", ""):
+                if edit:
                     orig_hash = edit['orig_hash']
                     context = get_one_proposed_edit(page_name, orig_hash)
                     return flask.render_template("index.html", **context)
