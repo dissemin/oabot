@@ -210,7 +210,7 @@ def get_random_proposed_edits():
 
         proposed_edits = page_json.get('proposed_edits', [])
         proposed_edits = [template_edit for template_edit in proposed_edits if (template_edit['classification'] != 'rejected')]
-        if proposed_edits:
+        if proposed_edits and len(proposed_edits) > 0:
             return page_name, proposed_edits
         else:
             continue
