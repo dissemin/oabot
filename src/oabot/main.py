@@ -148,7 +148,7 @@ class TemplateEdit(object):
             old_url = get_value(self.template, 'url')
             if old_url and "http" in old_url and not get_value(self.template, 'url-access'):
                 if oa_status == "closed":
-                    if is_no_subscription(url):
+                    if is_no_subscription(old_url):
                         self.classification = 'subscription_ignored'
                     else:
                         # Probably the existing link is closed.
