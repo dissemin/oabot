@@ -26,13 +26,18 @@ def run_bot_on_page(proposed_edits, template_param, access_token=None, site=None
     for edit in proposed_edits['proposed_edits']:
         template_hash = edit['orig_hash']
         changes = edit['proposed_change']
+        confirmed_changes = []
+
         for change in changes.split("|"):
             match = re.findall(r'^' + template_param, change)
             if match:
                 if not remove and change == "doi-access=":
                     continue
-                proposed_changes[template_hash] += change
+                confirmed_changes.append(change)
                 ids_touched += match
+
+        if len(confirmed_changes) > 0:
+            proposed_changes[template_hash] = "|".join(confirmed_changes)
 
     if len(proposed_changes) < 1:
         return False
