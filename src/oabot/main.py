@@ -149,14 +149,16 @@ class TemplateEdit(object):
             if old_url and "http" in old_url and not get_value(self.template, 'url-access'):
                 if oa_status == "closed":
                     if is_no_subscription(url):
-                        self.classification = 'ignored'
+                        self.classification = 'subscription_ignored'
                     else:
                         # Probably the existing link is closed.
                         self.proposed_change += "url-access=subscription|"
                         self.classification = 'registration_subscription'
                 elif oa_status == "unknown":
                     # We queried Dissemin on top of Unpaywall and no result
-                    self.proposed_change += "url-access=<!--WP:URLACCESS-->|"
+                    self.classification = 'subscription_ignored'
+                    # TODO: Find out how to avoid cosmetic-only edits.
+                    # self.proposed_change += "url-access=<!--WP:URLACCESS-->|"
             else:
                 # Nothing to see? Publisher URLs may need correction.
                 pass
