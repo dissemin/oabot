@@ -119,7 +119,9 @@ keyword_blacklist = [
 # Domains which never require subscription in [[w:en:WP:URLACCESS]] sense
 domains_no_subscription = [
     'academia.edu',
+    'adsabs.harvard.edu',
     'archive.org',
+    'biodiversitylibrary.org',
     'nih.gov',
     'persee.fr',
     'researchgate.net',
