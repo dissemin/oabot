@@ -76,6 +76,7 @@
             <p>
                 <input type="checkbox" name="{{ template_edit.orig_hash }}-addlink" value="checked" checked />
                 <span class="addlink">Proposed link: <a href="{{ template_edit.proposed_link }}" target="_blank">{{ template_edit.proposed_link }}</a></span></p>
+            <p>Proposed edit: <code>{{ proposed_edit.proposed_change }}</code></p>
             <input type="hidden" size="100" name="{{ template_edit.orig_hash }}" value="{{ template_edit.proposed_change }}" />
             </li>
             <div style="clear: both;"></div>
