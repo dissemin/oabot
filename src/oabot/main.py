@@ -231,7 +231,7 @@ class TemplateEdit(object):
             # Also avoid replacing URLs which clearly already point to an open PDF
             elif url:
                 try:
-                    r = SESSION.head(url, timeout=5)
+                    r = SESSION.head(url, timeout=5, allow_redirects=True)
                 except requests.exceptions.RequestException:
                     r = None
                 if r and int(r.headers.get('Content-Length', 0)) > 10000 and 'pdf' in r.headers.get('Content-Type', ''):
