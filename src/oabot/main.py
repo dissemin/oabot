@@ -221,6 +221,7 @@ class TemplateEdit(object):
             # Avoid proposing e.g. a direct PDF URL from the same domain we already link
             if url and urlparse(url).hostname in self.proposed_change:
                 self.proposed_change = ""
+                self.classification = "already_open"
             # Also avoid replacing URLs which clearly already point to an open PDF
             elif url:
                 try:
@@ -229,10 +230,15 @@ class TemplateEdit(object):
                     r = None
                 if r and int(r.headers.get('Content-Length', 0)) > 10000 and 'pdf' in r.headers.get('Content-Type', ''):
                     self.proposed_change = ""
+                    self.classification = "already_open"
+                # Nothing left to check. The new link seems good to use.
+                self.classification = 'link_replaced'
             if hdl and hdl in self.proposed_change:
                 # Don't actually add the URL but mark the hdl as seemingly OA
                 # and hope that the templates will later linkify it
+                self.classification = "already_open"
                 self.proposed_change = "hdl-access=free"
+
 
     def update_template(self, change):
         """
