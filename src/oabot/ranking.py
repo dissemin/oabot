@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
-
 import re
+from urllib.parse import urlparse
 
 rg_re = re.compile('(https?://www\.researchgate\.net/)(.*)(publication/[0-9]*)_.*/links/[0-9a-f]*.pdf')
 
@@ -116,6 +116,17 @@ keyword_blacklist = [
     'hdl.handle.net/10068',
 ]
 
+# Domains which never require subscription in [[w:en:WP:URLACCESS]] sense
+domains_no_subscription = [
+    'academia.edu',
+    'archive.org',
+    'nih.gov',
+    'persee.fr',
+    'researchgate.net',
+    'semanticscholar.org',
+    'zenodo.org',
+]
+
 domain_re = re.compile(r'\s*(https?|ftp)://(([a-zA-Z0-9-_]+\.)+[a-zA-Z]+)(:[0-9]+)?/?')
 def extract_domain(url):
     match = domain_re.match(url)
@@ -137,5 +148,12 @@ def is_blacklisted(url):
     subdomain = extract_domain(url)
     for domain in domain_blacklist:
         if domain in subdomain:
+            return True
+    return False
+
+def is_no_subscription(url):
+    url_domain = urlparse(url).netloc
+    for domain in domains_no_subscription:
+        if domain in url_domain:
             return True
     return False
