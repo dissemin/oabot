@@ -15,7 +15,7 @@ from datetime import datetime
 from copy import deepcopy
 import os
 from .arguments import template_arg_mappings, get_value
-from .ranking import sort_links, is_blacklisted
+from .ranking import sort_links, is_blacklisted, is_no_subscription
 from .settings import *
 from .ondiskcache import OnDiskCache
 from .classifier import AcademicPaperFilter
@@ -148,8 +148,12 @@ class TemplateEdit(object):
             old_url = get_value(self.template, 'url')
             if old_url and "http" in old_url and not get_value(self.template, 'url-access'):
                 if oa_status == "closed":
-                    # Probably the existing link is closed.
-                    self.proposed_change += "url-access=subscription|"
+                    if is_no_subscription(url):
+                        self.classification = 'ignored'
+                    else:
+                        # Probably the existing link is closed.
+                        self.proposed_change += "url-access=subscription|"
+                        self.classification = 'registration_subscription'
                 elif oa_status == "unknown":
                     # We queried Dissemin on top of Unpaywall and no result
                     self.proposed_change += "url-access=<!--WP:URLACCESS-->|"
