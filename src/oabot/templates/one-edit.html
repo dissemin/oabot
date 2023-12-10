@@ -113,7 +113,7 @@
         <div id="preview-diff">
         </div>
 
-        {% if proposed_edit.proposed_link %}
+        {% if proposed_edit and 'proposed_link' in proposed_edit %}
         <h3>URL preview</h3>
         <div id="preview-target">
         <iframe width="400" height="300" src="{{ url_for('stream_url') }}?url={{ proposed_edit.proposed_link|urlencode }}"></iframe>
