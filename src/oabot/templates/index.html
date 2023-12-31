@@ -50,7 +50,7 @@
     <h3>Article: <a href="https://en.wikipedia.org/wiki/{{ page_name }}">{{ page_name }}</a></h3>
     <h3>Citation</h3>
     <div class="wiki">{{ proposed_edit.orig_string|wikirender }}</div>
-    <p><span class="addlink">Proposed link: <a href="{{ proposed_edit.proposed_link }}" target="_blank">{{ proposed_edit.proposed_link }}</a></span></p>
+    <p>Proposed edit: <code>{{ template_edit.proposed_change }}</code></p>
     <div style="clear: both;"></div>
     {% endif %}
     <br />
