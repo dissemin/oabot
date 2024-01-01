@@ -117,7 +117,6 @@ class TemplateEdit(object):
         doi = reference.get('ID_list', {}).get('DOI')
         try:
             link, oa_status = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
-            print(link, oa_status)
         except requests.exceptions.RequestException:
             sleep(60)
             return
@@ -128,7 +127,7 @@ class TemplateEdit(object):
             if doi and not already_oa_param:
                 self.proposed_change = "doi-access=free|"
                 self.proposed_link = "https://doi.org/{}".format(doi)
-   
+
             # TODO add the DOI suggested by Dissemin if missing. Needs some checks.
             # elif dissemin_paper_object.get('pdf_url') and 'doi.org' in dissemin_paper_object.get('pdf_url'):
             #    self.proposed_change = dissemin_paper_object.get('pdf_url')
