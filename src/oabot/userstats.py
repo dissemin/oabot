@@ -30,7 +30,8 @@ class UserStats(Base):
     Database record which holds the number of user edits
     """
     __tablename__ = 'userstats'
-    id = Column(Integer, Sequence('userstats_id_seq'), primary_key=True)
+    id_seq = Sequence("userstats_id_seq", metadata=Base.metadata, start=1)
+    id = Column(Integer, id_seq, server_default=id_seq.next_value(), primary_key=True)
     wiki = Column(String(32))
     user_name = Column(String(128))
     nb_edits = Column(Integer)
