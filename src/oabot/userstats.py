@@ -14,10 +14,19 @@ def get_session():
 """
 These user-stats can be synchronized with Wikipedia with the following SQL query on the replicas:
 
-SELECT COUNT(1) AS nb_edits, revision.rev_user_text
-FROM change_tag INNER JOIN revision ON change_tag.ct_rev_id = revision.rev_id
-WHERE change_tag.ct_tag = "OAuth CID: 817"
-GROUP BY revision.rev_user_text
+SELECT COUNT(r.rev_id) AS nb_edits, u.user_name
+FROM change_tag ct
+INNER JOIN revision r
+ON ct.ct_rev_id = r.rev_id
+JOIN change_tag_def ctd
+ON ctd.ctd_id = ct.ct_tag_id
+AND ( ctd.ctd_name = "OAuth CID: 817"
+OR ctd.ctd_name = "OAuth CID: 1779" )
+JOIN actor a
+ON a.actor_id = r.rev_actor
+JOIN user u
+ON u.user_id = a.actor_user
+GROUP BY r.rev_actor
 ORDER BY nb_edits;
 
 To connect to the enwiki replica:
