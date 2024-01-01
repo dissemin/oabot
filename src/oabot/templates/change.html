@@ -1,11 +1,11 @@
 <!doctype html>
 {% macro circle_color(policy) -%}
     {% if policy == 'can' %}
-        <div class="circle circle-green"></div> Allowed
+        <div class="circle circle-green"></div> Yes
     {% elif policy == 'restricted' %}
-        <div class="circle circle-orange"></div> Restricted
+        <div class="circle circle-orange"></div> Maybe
     {% elif policy == 'cannot' %}
-        <div class="circle circle-red"></div> Forbidden
+        <div class="circle circle-red"></div> No
     {% else %}
         <div class="circle"></div> Unknown
     {% endif %}
@@ -59,7 +59,7 @@
         {%  for template_edit in proposed_edits %}
             {% if 'policy' in template_edit %}
            <div class="sherparomeo" style="float: right;"> 
-                <b>Copyright guidance</b>
+                <b>Publisher information</b>
                 <div class="sherparomeonote">Does this publication support such deposits?</div>
                 Preprint: {{ circle_color( template_edit.policy.preprint ) }}<br>
                 Postprint: {{ circle_color( template_edit.policy.postprint ) }}<br>
