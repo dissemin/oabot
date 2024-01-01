@@ -101,15 +101,12 @@ class TemplateEdit(object):
                 # The status quo is good enough.
                 return
 
-        # --- Disabled for now ----
-        # If the template is marked with |registration= or
-        # |subscription= , let's assume that the editor tried to find
-        # a better version themselves so it's not worth trying.
+        # If the template is marked with |registration= or |subscription=,
+        # maybe an editor tried to find a better version or maybe not.
         if ((get_value(self.template, 'subscription')
             or get_value(self.template, 'registration')) in
             ['yes','y','true']):
             self.classification = 'registration_subscription'
-            # return
 
         if only_doi:
             dissemin_paper_object = {}
@@ -124,18 +121,19 @@ class TemplateEdit(object):
             sleep(60)
             return
 
-        if oa_status in ['gold', 'hybrid', 'bronze']:
+        # TODO: Reconsider adding bronze OA if it ever becomes possible to remove doi-access=free
+        if oa_status in ['gold', 'hybrid']:
             self.classification = 'already_open'
             if doi and not already_oa_param:
-                self.proposed_change = "doi-access=free"
+                self.proposed_change = "doi-access=free|"
                 self.proposed_link = "https://doi.org/{}".format(doi)
-                return
+
             # TODO add the DOI suggested by Dissemin if missing. Needs some checks.
             # elif dissemin_paper_object.get('pdf_url') and 'doi.org' in dissemin_paper_object.get('pdf_url'):
             #    self.proposed_change = dissemin_paper_object.get('pdf_url')
             #    return
-            else:
-                return
+        # Continue either way as we may want to add hdl, pmc
+
         if not link:
             self.classification = 'not_found'
             if oa_status == "closed":
@@ -198,25 +196,26 @@ class TemplateEdit(object):
 
                 self.classification = 'already_present'
                 if argmap.name == 'hdl':
-                    self.proposed_change = "hdl-access=free"
+                    self.proposed_change += "hdl-access=free|"
                     # don't change anything else
+                    # TODO: Consider still adding PMC is available
                     return
                 if argmap.name == 'url':
                     # We may want to change the URL. Propose it after cleanup.
-                    for para in ['url-access', 'url-status', 'archive-url', 'archive-date', 'archiveurl', 'archivedate', 'accessdate']:
+                    for param in ['url-access', 'url-status', 'archive-url', 'archive-date', 'archiveurl', 'archivedate', 'accessdate']:
                         # Override existing URL archival parameters only if present.
-                        if self.template.has(para):
-                            self.proposed_change += f"{para}=|"
+                        if self.template.has(param):
+                            self.proposed_change += f"{param}=|"
                 else:
                     # Do not override existing parameters.
                     return
 
             if argmap.is_id:
-                self.proposed_change += 'id={{%s|%s}}' % (argmap.name,match)
+                self.proposed_change += 'id={{%s|%s}}|' % (argmap.name,match)
             else:
-                self.proposed_change += '%s=%s' % (argmap.name,match)
+                self.proposed_change += '%s=%s|' % (argmap.name,match)
                 if argmap.name == 'hdl':
-                    self.proposed_change += "|hdl-access=free"
+                    self.proposed_change += "hdl-access=free|"
             break
 
         # If we are going to add an URL, check it's not probably redundant
