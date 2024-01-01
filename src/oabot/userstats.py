@@ -21,7 +21,7 @@ GROUP BY revision.rev_user_text
 ORDER BY nb_edits;
 
 To connect to the enwiki replica:
-mysql --defaults-file=$HOME/replica.my.cnf -h enwiki.labsdb enwiki_p
+mariadb --defaults-file=$HOME/replica.my.cnf -h enwiki.analytics.db.svc.wikimedia.cloud enwiki_p
 
 """
 
@@ -30,8 +30,7 @@ class UserStats(Base):
     Database record which holds the number of user edits
     """
     __tablename__ = 'userstats'
-    id_seq = Sequence("userstats_id_seq", metadata=Base.metadata, start=1)
-    id = Column(Integer, id_seq, server_default=id_seq.next_value(), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     wiki = Column(String(32))
     user_name = Column(String(128))
     nb_edits = Column(Integer)
