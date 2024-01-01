@@ -90,3 +90,9 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
 {{Citation  | last = Peggy  | first = Klaus  | title = The Hard Truth About Soft Skills: Workplace Lessons Smart People Wish They'd Learned Sooner  | publisher = HarperCollins  | year = 2008  | isbn = 978-0-061-28414-4  | url-access = registration  | url = https://archive.org/details/hardtruthaboutso00klau  }}"
         """)
         self.assertEqual('', edit.proposed_change)
+
+    def test_existing_url_closed_access(self):
+        edit = self.propose_change("""
+{{cite journal |last1=Shepard |first1=William |last2=Marquardt |first2=H. Michael |title=Lyman E. Johnson: Forgotten Apostle |journal=[[Journal of Mormon History]] |date=Winter 2010 |volume=36 |issue=1 |page=93 |doi=10.2307/23291073 |jstor=23291073 |url=https://digitalcommons.usu.edu/cgi/viewcontent.cgi?referer=&httpsredir=1&article=1052&context=mormonhistory |access-date=6 May 2021 }}
+        """)
+        self.assertEqual('', edit.proposed_change)
