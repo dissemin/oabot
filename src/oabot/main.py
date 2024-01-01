@@ -154,6 +154,7 @@ class TemplateEdit(object):
                         # Probably the existing link is closed.
                         self.proposed_change += "url-access=subscription|"
                         self.classification = 'registration_subscription'
+                        self.keep_existing_url(old_url)
                 elif oa_status == "unknown":
                     # We queried Dissemin on top of Unpaywall and no result
                     self.classification = 'subscription_ignored'
@@ -221,22 +222,10 @@ class TemplateEdit(object):
         # If we are going to add an URL, check it's not probably redundant
         if self.proposed_change.startswith('url'):
             hdl = get_value(self.template, 'hdl')
-            url = get_value(self.template, 'url')
-            if url:
-                url = url.strip()
-            # Avoid proposing e.g. a direct PDF URL from the same domain we already link
-            if url and urlparse(url).hostname in self.proposed_change:
-                self.proposed_change = ""
-                self.classification = "already_open"
-            # Also avoid replacing URLs which clearly already point to an open PDF
-            elif url:
-                try:
-                    r = SESSION.head(url, timeout=5, allow_redirects=True)
-                except requests.exceptions.RequestException:
-                    r = None
-                if r and int(r.headers.get('Content-Length', 0)) > 10000 and 'pdf' in r.headers.get('Content-Type', ''):
-                    self.proposed_change = ""
-                    self.classification = "already_open"
+            old_url = get_value(self.template, 'url')
+            if old_url:
+                old_url = old_url.strip()
+                self.keep_existing_url(old_url)
                 # Nothing left to check. The new link seems good to use.
                 self.classification = 'link_replaced'
             if hdl and hdl in self.proposed_change:
@@ -260,6 +249,31 @@ class TemplateEdit(object):
         value = value.replace(' ', '%20')
         value = value.replace('|', '{{!}}')
         self.template.add(param, value)
+
+    def keep_existing_url(self, url):
+        """
+        Check existing URL and discard changes if the current URL is good enough.
+        """
+        if not url:
+            return
+
+        # Avoid proposing e.g. a direct PDF URL from the same domain we already link
+        if urlparse(url).hostname in self.proposed_change:
+            self.proposed_change = ""
+            self.classification = "already_open"
+            return True
+
+        try:
+            r = SESSION.head(url, timeout=5, allow_redirects=True)
+        except requests.exceptions.RequestException:
+            r = None
+        # Avoid changing an URL which already clearly points to an open PDF
+        if r and int(r.headers.get('Content-Length', 0)) > 10000 and 'pdf' in r.headers.get('Content-Type', ''):
+            self.proposed_change = ""
+            self.classification = "already_open"
+            return True
+
+        return False
 
 def remove_diacritics(s):
     return unidecode(s) if type(s) == str else s
