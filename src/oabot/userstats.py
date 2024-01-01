@@ -4,7 +4,8 @@ import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Sequence
 from sqlalchemy.orm import sessionmaker
-from oabot.dbconfig import get_engine
+from sqlalchemy.sql import text
+from oabot.dbconfig import *
 import requests
 
 Base = declarative_base()
@@ -12,9 +13,16 @@ def get_session():
      return sessionmaker(bind=get_engine())
 
 """
-These user-stats can be synchronized with Wikipedia with the following SQL query on the replicas:
+These user-stats can be synchronized with Wikipedia with the following SQL query on the replicas.
 
-SELECT COUNT(r.rev_id) AS nb_edits, u.user_name
+To connect to the enwiki replica:
+mariadb --defaults-file=$HOME/replica.my.cnf -h enwiki.analytics.db.svc.wikimedia.cloud enwiki_p
+
+Feed the output of the function to UserStats.sync_from_wikipedia() if the connection to the replica is set.
+
+"""
+
+replica_stats_query_sql = """SELECT COUNT(r.rev_id) AS nb_edits, u.user_name as user_name
 FROM change_tag ct
 INNER JOIN revision r
 ON ct.ct_rev_id = r.rev_id
@@ -27,12 +35,16 @@ ON a.actor_id = r.rev_actor
 JOIN user u
 ON u.user_id = a.actor_user
 GROUP BY r.rev_actor
-ORDER BY nb_edits;
+ORDER BY nb_edits;"""
 
-To connect to the enwiki replica:
-mariadb --defaults-file=$HOME/replica.my.cnf -h enwiki.analytics.db.svc.wikimedia.cloud enwiki_p
+def get_stats_from_replica():
+    replica = get_engine_replica()
+    with e.connect() as conn:
+        s = text(replica_stats_query_sql).columns("nb_edits", "user_name")
+        rs = conn.execute()
+        dct = {row.user_name.decode("utf8"): row.nb_edits for row in rs}
 
-"""
+    return dct
 
 class UserStats(Base):
     """
@@ -101,12 +113,13 @@ class UserStats(Base):
                 return self.user_name
         else:
             return self.user_name
-
+ 
 if __name__ == '__main__':
 
     engine = get_engine()
 
     Base.metadata.create_all(engine)
+    # dct = get_stats_from_replica()
     dct = {
     'Zuphilip': 1,
     'Stefan Weil': 1,

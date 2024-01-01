@@ -9,10 +9,17 @@ _config = configparser.ConfigParser()
 _config.read(os.path.expanduser("~/replica.my.cnf"))
 _url = 'mysql://{0}:{1}@{2}/{0}__oabot'.format(_config['client']['user'],
                                                _config['client']['password'],
-                                               'tools.labsdb'
+                                               'tools.db.svc.wikimedia.cloud'
                                                )
-
+_url_enwiki = 'mysql+pymysql://{0}:{1}@{2}/enwiki_p'.format(_config['client']['user'],
+                                               _config['client']['password'],
+                                               'enwiki.analytics.db.svc.wikimedia.cloud'
+                                               )
 
 def get_engine():
     engine = create_engine(_url, echo=False)
+    return engine
+
+def get_engine_replica():
+    engine = create_engine(_url_enwiki, echo=False)
     return engine
