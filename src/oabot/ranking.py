@@ -7,12 +7,13 @@ rg_re = re.compile('(https?://www\.researchgate\.net/)(.*)(publication/[0-9]*)_.
 
 # This section defines a priority order on the links retrieved from APIs
 domain_priority = {
-        'doi.org': 40,               # Links to the publisher's version in most of the cases
-        'dx.doi.org': 40,            # Links to the publisher's version in most of the cases
-        'ncbi.nlm.nih.gov': 50,      # PubMed or PubMed Central: official version too, preferred for links.
-        'arxiv.org' : 30,            # Curated repository
-        'hdl.handle.net': 20,        # Institutional repositories
-        'citeseerx.ist.psu.edu': 10, # Preprints crawled on the web
+        'ncbi.nlm.nih.gov': 50,        # PubMed or PubMed Central: official version too, preferred for links.
+        'doi.org': 40,                 # Links to the publisher's version in most of the cases
+        'dx.doi.org': 40,              # Links to the publisher's version in most of the cases
+        'arxiv.org' : 30,              # Curated repository
+        'hdl.handle.net': 20,          # Institutional repositories
+        'citeseerx.ist.psu.edu': 10,   # Preprints crawled on the web
+        'pdfs.semanticscholar.org': 5, # Vanishes often.
 }
 # Academia.edu and ResearchGate are not ranked here, they are at an equal (lowest) priority
 domain_blacklist = [
