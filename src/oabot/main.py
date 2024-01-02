@@ -263,7 +263,7 @@ class TemplateEdit(object):
             return True
 
         try:
-            r = SESSION.head(url, timeout=5, allow_redirects=True)
+            r = requests.head(url, timeout=(5, 1), allow_redirects=True, headers={'User-Agent': OABOT_USER_AGENT})
         except requests.exceptions.RequestException:
             r = None
         # Avoid changing an URL which already clearly points to an open PDF
@@ -418,7 +418,7 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
     for url in sort_links(candidate_urls):
         if url:
             try:
-                head = SESSION.head(url, timeout=10)
+                head = requests.head(url, timeout=(5, 1), allow_redirects=True, headers={'User-Agent': OABOT_USER_AGENT})
                 head.raise_for_status()
                 if head.status_code < 400 and 'Location' in head.headers and urllib.parse.urlparse(head.headers['Location']).path == '/':
                     # Redirects to main page: fake status code, should be not found
