@@ -65,7 +65,7 @@ class TemplateEditTests(unittest.TestCase):
         """, only_doi=True)
         self.assertEqual("doi-access=free", edit.proposed_change)
 
-    def test_uppercase(self):
+    def test_uppercase_arxiv(self):
         edit = self.propose_change("""
 {{Cite journal|last=Prpić|first=John|last2=Shukla|first2=Prashant P.|last3=Kietzmann|first3=Jan H.|last4=McCarthy|first4=Ian P.|date=2015-01-01|title=How to work a crowd: Developing crowd capital through
 crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S0007681314001438|journal=Business Horizons|volume=58|issue=1|pages=77–85|doi=10.1016/j.bushor.2014.09.005|ARXIV=1702.04214}}
@@ -85,14 +85,36 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
         """)
         self.assertEqual('url-access=subscription|', edit.proposed_change)
 
+    # Don't add an url-access parameter if there is one already.
     def test_existing_url_access(self):
         edit = self.propose_change("""
 {{Citation  | last = Peggy  | first = Klaus  | title = The Hard Truth About Soft Skills: Workplace Lessons Smart People Wish They'd Learned Sooner  | publisher = HarperCollins  | year = 2008  | isbn = 978-0-061-28414-4  | url-access = registration  | url = https://archive.org/details/hardtruthaboutso00klau  }}"
         """)
         self.assertEqual('', edit.proposed_change)
 
+    # Don't make changes for a seemingly closed DOI with a functioning PDF link.
     def test_existing_url_closed_access(self):
         edit = self.propose_change("""
 {{cite journal |last1=Shepard |first1=William |last2=Marquardt |first2=H. Michael |title=Lyman E. Johnson: Forgotten Apostle |journal=[[Journal of Mormon History]] |date=Winter 2010 |volume=36 |issue=1 |page=93 |doi=10.2307/23291073 |jstor=23291073 |url=https://digitalcommons.usu.edu/cgi/viewcontent.cgi?referer=&httpsredir=1&article=1052&context=mormonhistory |access-date=6 May 2021 }}
         """)
         self.assertEqual('', edit.proposed_change)
+
+    # Add a PMC identifier even if the DOI is gold OA.
+    def test_add_pmc_gold_oa(self):
+        edit = self.propose_change("""
+{{cite journal | last1=Lit | first1=Lisa | title=Differences in Behavior and Activity Associated with a Poly(A) Expansion in the Dopamine Transporter in Belgian Malinois | journal=PLOS ONE | publisher=Public Library of Science (PLoS) | volume=8 | issue=12 | date=23 Dec 2013 | issn=1932-6203 | doi=10.1371/journal.pone.0082948 | page=e82948 | doi-access=free | pmid=24376613 }}
+        """)
+        self.assertEqual('pmc=3871558', edit.proposed_change)
+
+    # T354471: Ignore arxiv URL from CiteSeerX
+    def test_add_no_arxiv_from_citeseerx(self):
+        edit = self.propose_change("""
+{{Cite journal |last=S. |first=D. |date=1966 |title=Review of Mathematical Methods in Physics |journal=Mathematics of Computation |volume=20 |issue=93 |pages=188–189 |doi=10.2307/2004316 |jstor=2004316 |issn=0025-5718 }}
+        """)
+        self.assertNotEqual('arxiv=hep-th/0502233', edit.proposed_change)
+
+    def test_add_arxiv_from_citeseerx(self):
+        edit = self.propose_change("""
+{{cite journal|first1=Aris|last1=Anagnostopoulos|first2=Ioannis|last2=Kontoyiannis|first3=Eli|last3=Upfal|title=Steady state analysis of balanced‐allocation routing|journal=Random Structures & Algorithms|date=2005-07|pages=446–467|volume=26|issue=4|doi=10.1002/rsa.20071}}
+        """)
+        self.assertEqual('arxiv=0209357', edit.proposed_change)
