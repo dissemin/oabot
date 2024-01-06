@@ -391,10 +391,17 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
                 return False, oa_status
 
         for oa_location in resp.get('oa_locations') or []:
+            landing_page = oa_location.get('url_for_landing_page', '')
         # In case there's a handle, prefer the landing page URL over the PDF link
         # as the hdl URL will be converted to the hdl parameter.
-            if 'hdl.handle.net' in oa_location.get('url_for_landing_page', ''):
-                candidate_urls.append(oa_location.get('url_for_landing_page'))
+            if 'hdl.handle.net' in landing_page:
+                candidate_urls.append(landing_page)
+        # T354471: If the URL comes from CiteSeerX, use the landing page URL
+        # so that other arxiv/identifier matches have a chance to rank higher
+        # and override any incorrect matches by title on the CiteSeerX side.
+            if 'citeseerx.ist.psu.edu' in landing_page:
+                candidate_urls.append(landing_page.replace("/summary", "/download"))
+
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
                 candidate_urls.append(oa_location['url'])
 
