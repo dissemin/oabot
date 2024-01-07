@@ -1,11 +1,11 @@
 <!doctype html>
 {% macro circle_color(policy) -%}
     {% if policy == 'can' %}
-        <div class="circle circle-green"></div> Allowed
+        <div class="circle circle-green"></div> Yes
     {% elif policy == 'restricted' %}
-        <div class="circle circle-orange"></div> Restricted
+        <div class="circle circle-orange"></div> Maybe
     {% elif policy == 'cannot' %}
-        <div class="circle circle-red"></div> Forbidden
+        <div class="circle circle-red"></div> No
     {% else %}
         <div class="circle"></div> Unknown
     {% endif %}
@@ -44,9 +44,9 @@
         <div>
          <ol>
           <li>Is the original citation closed access (or lacking any link)?</li>
-          <li>Is the new link free to read?</li>
-          <li>Do the two sources match?</li>
-          <li>Is the new link likely <a href="https://meta.wikimedia.org/wiki/The_Wikipedia_Library/OAWiki/Copyright_and_OA" target="_blank">copyright-compliant</a>?</li>
+          <li>Is the new target free to read?</li>
+          <li>Does the new target match the citation?</li>
+          <li>Do you know or suspect the new target <a href="https://en.wikipedia.org/wiki/Wikipedia:OABOT#What%27s_the_copyright_status_of_the_proposed_links%3F" target="_blank">infringes copyright</a>?</li>
          </ol>
         </div>
  
@@ -59,7 +59,7 @@
         {%  for template_edit in proposed_edits %}
             {% if 'policy' in template_edit %}
            <div class="sherparomeo" style="float: right;"> 
-                <b>Copyright guidance</b>
+                <b>Publisher information</b>
                 <div class="sherparomeonote">Does this publication support such deposits?</div>
                 Preprint: {{ circle_color( template_edit.policy.preprint ) }}<br>
                 Postprint: {{ circle_color( template_edit.policy.postprint ) }}<br>
@@ -76,6 +76,7 @@
             <p>
                 <input type="checkbox" name="{{ template_edit.orig_hash }}-addlink" value="checked" checked />
                 <span class="addlink">Proposed link: <a href="{{ template_edit.proposed_link }}" target="_blank">{{ template_edit.proposed_link }}</a></span></p>
+            <p>Proposed edit: <code>{{ template_edit.proposed_change }}</code></p>
             <input type="hidden" size="100" name="{{ template_edit.orig_hash }}" value="{{ template_edit.proposed_change }}" />
             </li>
             <div style="clear: both;"></div>
@@ -91,7 +92,7 @@
             <input type="button" onclick="preview()" value="Preview" class="btn btn-default" />
             <input class="btn btn-success" type="submit" value="Add link" />
         </span>
-         with summary <input class="form-control" style="max-width:500px; display: inline" type="text" size="80" name="summary" value="Added free to read links in citations with [[WP:OABOT|OAbot]] #oabot" /></p>
+         with summary <input class="form-control" style="max-width:500px; display: inline" type="text" size="80" name="summary" value="Open access status updates in citations with [[WP:OABOT|OAbot]] #oabot" /></p>
         </form>
         <script type="text/javascript">
         function preview() {

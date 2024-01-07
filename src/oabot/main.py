@@ -15,7 +15,7 @@ from datetime import datetime
 from copy import deepcopy
 import os
 from .arguments import template_arg_mappings, get_value
-from .ranking import sort_links, is_blacklisted
+from .ranking import sort_links, is_blacklisted, is_no_subscription
 from .settings import *
 from .ondiskcache import OnDiskCache
 from .classifier import AcademicPaperFilter
@@ -25,6 +25,9 @@ from Levenshtein import ratio
 
 urls_cache = OnDiskCache('urls_cache.pkl')
 paper_filter = AcademicPaperFilter()
+
+SESSION = requests.Session()
+SESSION.headers.update({'User-Agent': OABOT_USER_AGENT})
 
 class TemplateEdit(object):
     """
@@ -98,15 +101,12 @@ class TemplateEdit(object):
                 # The status quo is good enough.
                 return
 
-        # --- Disabled for now ----
-        # If the template is marked with |registration= or
-        # |subscription= , let's assume that the editor tried to find
-        # a better version themselves so it's not worth trying.
+        # If the template is marked with |registration= or |subscription=,
+        # maybe an editor tried to find a better version or maybe not.
         if ((get_value(self.template, 'subscription')
             or get_value(self.template, 'registration')) in
             ['yes','y','true']):
             self.classification = 'registration_subscription'
-            # return
 
         if only_doi:
             dissemin_paper_object = {}
@@ -115,26 +115,49 @@ class TemplateEdit(object):
 
         # Otherwise, try to get a free link
         doi = reference.get('ID_list', {}).get('DOI')
-        link, oa_status = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
-        if oa_status in ['gold', 'hybrid', 'bronze']:
+        try:
+            link, oa_status = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
+        except requests.exceptions.RequestException:
+            sleep(60)
+            return
+
+        # TODO: Reconsider adding bronze OA if it ever becomes possible to remove doi-access=free
+        if oa_status in ['gold', 'hybrid']:
             self.classification = 'already_open'
             if doi and not already_oa_param:
-                self.proposed_change = "doi-access=free"
+                self.proposed_change = "doi-access=free|"
                 self.proposed_link = "https://doi.org/{}".format(doi)
-                return
+
             # TODO add the DOI suggested by Dissemin if missing. Needs some checks.
             # elif dissemin_paper_object.get('pdf_url') and 'doi.org' in dissemin_paper_object.get('pdf_url'):
             #    self.proposed_change = dissemin_paper_object.get('pdf_url')
             #    return
-            else:
-                return
+        # Continue either way as we may want to add hdl, pmc
+
         if not link:
             self.classification = 'not_found'
-            if get_value(self.template, 'doi-access') in ['free'] and oa_status == "closed":
-                # There is no OA link but the DOI was previously considered OA.
-                # This was probably en ephemeral bronze OA paper.
-                # Remove the previous doi-access statement.
-                self.proposed_change = "doi-access=|"
+            if oa_status == "closed":
+                self.proposed_change = ""
+                if get_value(self.template, 'doi-access') in ['free']:
+                    # There is no OA link but the DOI was previously considered OA.
+                    # This was probably en ephemeral bronze OA paper.
+                    # Remove the previous doi-access statement.
+                    self.proposed_change += "doi-access=|"
+            old_url = get_value(self.template, 'url')
+            if old_url and "http" in old_url and not get_value(self.template, 'url-access'):
+                if oa_status == "closed":
+                    if is_no_subscription(old_url):
+                        self.classification = 'subscription_ignored'
+                    else:
+                        # Probably the existing link is closed.
+                        self.proposed_change += "url-access=subscription|"
+                        self.classification = 'registration_subscription'
+                        self.keep_existing_url(old_url)
+                elif oa_status == "unknown":
+                    # We queried Dissemin on top of Unpaywall and no result
+                    self.classification = 'subscription_ignored'
+                    # TODO: Find out how to avoid cosmetic-only edits.
+                    # self.proposed_change += "url-access=<!--WP:URLACCESS-->|"
             else:
                 # Nothing to see? Publisher URLs may need correction.
                 pass
@@ -173,37 +196,43 @@ class TemplateEdit(object):
 
                 self.classification = 'already_present'
                 if argmap.name == 'hdl':
-                    self.proposed_change = "hdl-access=free"
+                    self.proposed_change += "hdl-access=free|"
                     # don't change anything else
+                    # TODO: Consider still adding PMC is available
                     return
                 if argmap.name == 'url':
                     # We may want to change the URL. Propose it after cleanup.
-                    self.proposed_change = "url-access=|url-status=|archive-url=|archive-date=|"
+                    for param in ['url-access', 'url-status', 'archive-url', 'archive-date', 'archiveurl', 'archivedate', 'accessdate']:
+                        # Override existing URL archival parameters only if present.
+                        if self.template.has(param):
+                            self.proposed_change += f"{param}=|"
                 else:
                     # Do not override existing parameters.
                     return
 
             if argmap.is_id:
-                self.proposed_change += 'id={{%s|%s}}' % (argmap.name,match)
+                self.proposed_change += 'id={{%s|%s}}|' % (argmap.name,match)
             else:
-                self.proposed_change += '%s=%s' % (argmap.name,match)
+                self.proposed_change += '%s=%s|' % (argmap.name,match)
                 if argmap.name == 'hdl':
-                    self.proposed_change += "|hdl-access=free"
+                    self.proposed_change += "hdl-access=free|"
             break
 
         # If we are going to add an URL, check it's not probably redundant
         if self.proposed_change.startswith('url'):
             hdl = get_value(self.template, 'hdl')
-            url = get_value(self.template, 'url')
-            if url:
-                url = url.strip()
-            # Avoid proposing e.g. a direct PDF URL from the same domain we already link
-            if url and urlparse(url).hostname in self.proposed_change:
-                self.proposed_change = ""
+            old_url = get_value(self.template, 'url')
+            if old_url:
+                old_url = old_url.strip()
+                self.keep_existing_url(old_url)
+                # Nothing left to check. The new link seems good to use.
+                self.classification = 'link_replaced'
             if hdl and hdl in self.proposed_change:
                 # Don't actually add the URL but mark the hdl as seemingly OA
                 # and hope that the templates will later linkify it
+                self.classification = "already_open"
                 self.proposed_change = "hdl-access=free"
+
 
     def update_template(self, change):
         """
@@ -219,6 +248,31 @@ class TemplateEdit(object):
         value = value.replace(' ', '%20')
         value = value.replace('|', '{{!}}')
         self.template.add(param, value)
+
+    def keep_existing_url(self, url):
+        """
+        Check existing URL and discard changes if the current URL is good enough.
+        """
+        if not url:
+            return
+
+        # Avoid proposing e.g. a direct PDF URL from the same domain we already link
+        if urlparse(url).hostname in self.proposed_change:
+            self.proposed_change = ""
+            self.classification = "already_open"
+            return True
+
+        try:
+            r = SESSION.head(url, timeout=5, allow_redirects=True)
+        except requests.exceptions.RequestException:
+            r = None
+        # Avoid changing an URL which already clearly points to an open PDF
+        if r and int(r.headers.get('Content-Length', 0)) > 10000 and 'pdf' in r.headers.get('Content-Type', ''):
+            self.proposed_change = ""
+            self.classification = "already_open"
+            return True
+
+        return False
 
 def remove_diacritics(s):
     return unidecode(s) if type(s) == str else s
@@ -303,13 +357,14 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
 
     # Then, try OAdoi/Unpaywall
     # (It finds full texts that Dissemin does not, so it's always good to have!)
+    oa_status = None
     if doi:
         resp = None
         attempts = 0
         while resp is None:
             email = '{}@{}.in'.format('contact', 'dissem')
             try:
-                req = requests.get('http://api.unpaywall.org/v2/:{}'.format(doi), params={'email':email}, timeout=10)
+                req = requests.get('https://api.unpaywall.org/v2/:{}'.format(doi), params={'email':email}, timeout=10)
                 resp = req.json()
                 sleep(0.15)
             except ValueError:
@@ -320,32 +375,36 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
                 else:
                     continue
 
-        if only_unpaywall:
+        # Default to Unpaywall's OA status
+        if resp:
+            oa_status = resp.get('oa_status', None)
+        if oa_status and oa_status == "closed" and only_unpaywall:
             # Just give up when Unpaywall doesn't know an OA location.
-            if not resp['is_oa']:
-                return None, "closed"
+            return None, "closed"
+
         # If we have Unpaywall data, use it and prefer identifiers.
         boa = resp.get('best_oa_location', None)
         if boa and boa['host_type'] == 'publisher':
             # If we're coming from the DOI rather add doi-access=free
             # Avoid getting publisher URLs from Unpaywall or Dissemin
-            if len(resp['oa_locations']) <= 1:
-                return False, resp['oa_status']
-            else:
-                boa = resp['oa_locations'][1]
-        if boa:
-            if 'citeseerx.ist.psu.edu' in resp['best_oa_location']['url_for_landing_page']:
-                # Use the CiteSeerX URL which gets converted to the parameter
-                return resp['best_oa_location']['url_for_landing_page'].replace("/summary", "/download"), resp['oa_status']
-            else:
-                if 'hdl.handle.net' in boa['url_for_landing_page']:
-                    url = boa['url_for_landing_page']
-                else:
-                    url = boa['url']
-                if not is_blacklisted(url):
-                    return url, resp['oa_status']
+            if len(resp.get('oa_locations', [])) <= 1:
+                return False, oa_status
 
         for oa_location in resp.get('oa_locations') or []:
+            landing_page = oa_location.get('url_for_landing_page', '')
+        # In case there's a handle, prefer the landing page URL over the PDF link
+        # as the hdl URL will be converted to the hdl parameter.
+            if 'hdl.handle.net' in landing_page:
+                candidate_urls.append(landing_page)
+        # T354471: If the URL comes from CiteSeerX, use the landing page URL
+        # so that other arxiv/identifier matches have a chance to rank higher
+        # and override any incorrect matches by title on the CiteSeerX side.
+            if 'citeseerx.ist.psu.edu' in landing_page:
+                candidate_urls.append(landing_page.replace("/summary", "/download"))
+        # T354472: Reduce chances of incorrect title matches on PMC
+            if (landing_page.startswith("https://europepmc.org") or landing_page.startswith("https://www.ncbi.nlm.nih.gov/pmc/")) and oa_location.get("evidence") == "oa repository (via OAI-PMH title and first author match)" and int(resp.get("year", 2000)) < 2000:
+                continue
+
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
                 candidate_urls.append(oa_location['url'])
 
@@ -355,20 +414,27 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
 
     # Full text detection is not always accurate, so we try to pick
     # the URL which is most useful for citation templates and we
-    # doule check that it's still up.
+    # double check that it's still up.
     for url in sort_links(candidate_urls):
         if url:
             try:
-                head = requests.head(url, timeout=10)
+                head = SESSION.head(url, timeout=10)
                 head.raise_for_status()
                 if head.status_code < 400 and 'Location' in head.headers and urllib.parse.urlparse(head.headers['Location']).path == '/':
                     # Redirects to main page: fake status code, should be not found
                     continue
                 if not is_blacklisted(url):
-                    return url, resp['oa_status']
+                    try:
+                        return url, "open"
+                    except NameError:
+                        # Probably we had no DOI to check Unpaywall for
+                        return url, None
             except requests.exceptions.RequestException:
                 continue
 
+    if oa_status:
+        return None, oa_status
+        
     return None, "unknown"
 
 def add_oa_links_in_references(text, page, only_doi=False):

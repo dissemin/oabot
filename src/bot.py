@@ -20,25 +20,31 @@ def run_bot(template_param, access_token=None, site=None, max_edits=100000, remo
 
 def run_bot_on_page(proposed_edits, template_param, access_token=None, site=None, remove=False):
     page_name = proposed_edits['page_name']
-    proposed_additions = {}
+    proposed_changes = {}
     ids_touched = []
 
     for edit in proposed_edits['proposed_edits']:
         template_hash = edit['orig_hash']
-        change = edit['proposed_change']
-        match = re.findall(r'^' + template_param, change)
-        if match:
-            if not remove and change == "doi-access=|":
-                continue
-            proposed_additions[template_hash] = change
-            ids_touched += match
+        changes = edit['proposed_change']
+        confirmed_changes = []
 
-    if len(proposed_additions) < 1:
+        for change in changes.split("|"):
+            match = re.findall(r'^' + template_param, change)
+            if match:
+                if not remove and change == "doi-access=":
+                    continue
+                confirmed_changes.append(change)
+                ids_touched += match
+
+        if len(confirmed_changes) > 0:
+            proposed_changes[template_hash] = "|".join(confirmed_changes)
+
+    if len(proposed_changes) < 1:
         return False
 
     try:
         app.logger.info('Attempting change on {}: {}'.format(page_name, change))
-        change_made = perform_bot_edit(page_name, '[[Wikipedia:OABOT|Open access bot]]: {} updated in citation with #oabot.'.format(', '.join(set(ids_touched))), proposed_additions, access_token=access_token, site=site)
+        change_made = perform_bot_edit(page_name, '[[Wikipedia:OABOT|Open access bot]]: {} updated in citation with #oabot.'.format(', '.join(set(ids_touched))), proposed_changes, access_token=access_token, site=site)
         if change_made:
             return True
     except ValueError:
@@ -47,13 +53,13 @@ def run_bot_on_page(proposed_edits, template_param, access_token=None, site=None
         app.logger.exception('perform_bot_edit was rejected or timed out on {}'.format(page_name))
     return False
 
-def perform_bot_edit(page_name, summary, proposed_additions, access_token=None, site=None):
+def perform_bot_edit(page_name, summary, proposed_changes, access_token=None, site=None):
      # Get the page
     new_text = main.get_page_over_api(page_name)
 
     # Perform each edit
-    for template_hash in proposed_additions:
-        new_text, change_made = make_new_wikicode_for_bot(new_text, template_hash, proposed_additions[template_hash], page_name)
+    for template_hash in proposed_changes:
+        new_text, change_made = make_new_wikicode_for_bot(new_text, template_hash, proposed_changes[template_hash], page_name)
 
     # Save the page
     if change_made:
