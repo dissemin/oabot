@@ -8,7 +8,7 @@ find cache bot_cache -maxdepth 1 -type f -mtime +14 -name "*json" -delete
 cd ~/www/python/src/cache/
 mkdir ~/www/python/src/cache/ss/
 grep -ErlZ --exclude-dir="*" '"proposed_change": "(hdl|pmc|arxiv|doi|url-access)' | xargs -0 -I§ mv "./§" ~/www/python/src/bot_cache/
-grep -ErlZ --exclude-dir="*" '"proposed_link": "http://(citeseerx|pdfs.semanticscholar.org)' | xargs -0 -I§ mv "./§" ~/www/python/src/cache/ss/
+grep -ErlZ --exclude-dir="*" '"proposed_link": "https?://(citeseerx|pdfs.semanticscholar.org)' | xargs -0 -I§ mv "./§" ~/www/python/src/cache/ss/
 cd ~/www/python/src/
 ~/www/python/venv/bin/python bot.py "(arxiv|pmc|pmid|doi|hdl)"
 timeout 72h ~/www/python/venv/bin/python ~/www/python/src/prefill_cached.py

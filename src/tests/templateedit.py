@@ -118,3 +118,15 @@ crowdsourcing|url=http://www.sciencedirect.com/science/article/pii/S000768131400
 {{cite journal|first1=Aris|last1=Anagnostopoulos|first2=Ioannis|last2=Kontoyiannis|first3=Eli|last3=Upfal|title=Steady state analysis of balanced‐allocation routing|journal=Random Structures & Algorithms|date=2005-07|pages=446–467|volume=26|issue=4|doi=10.1002/rsa.20071}}
         """)
         self.assertEqual('arxiv=0209357', edit.proposed_change)
+
+    def test_add_pmc_dupe_title(self):
+        edit = self.propose_change("""
+{{cite journal|title=New properties of all real functions|first=Henry|last=Blumberg|journal=Proceedings of the National Academy of Sciences|volume=8|issue=1|year=1922|pages=283–288 |doi=10.1073/pnas.8.10.283 |pmid=16586898 |doi-access=free }}
+        """)
+        self.assertEqual('pmc=1085149', edit.proposed_change)
+
+    def test_add_no_pmc_dupe_title(self):
+        edit = self.propose_change("""
+{{cite journal|title=New properties of all real functions|first=Henry|last=Blumberg|journal=Transactions of the American Mathematical Society|volume=24|date=September 1922|issue=2|page=113-128|doi=10.1090/S0002-9947-1922-1501216-9|doi-access=free|jstor=1989037|jstor-access=free}}
+        """)
+        self.assertNotEqual('pmc=1085149', edit.proposed_change)

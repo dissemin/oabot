@@ -401,6 +401,9 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
         # and override any incorrect matches by title on the CiteSeerX side.
             if 'citeseerx.ist.psu.edu' in landing_page:
                 candidate_urls.append(landing_page.replace("/summary", "/download"))
+        # T354472: Reduce chances of incorrect title matches on PMC
+            if (landing_page.startswith("https://europepmc.org") or landing_page.startswith("https://www.ncbi.nlm.nih.gov/pmc/")) and oa_location.get("evidence") == "oa repository (via OAI-PMH title and first author match)" and int(resp.get("year", 2000)) < 2000:
+                continue
 
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
                 candidate_urls.append(oa_location['url'])
