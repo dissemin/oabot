@@ -12,7 +12,8 @@ domain_priority = {
         'dx.doi.org': 40,              # Links to the publisher's version in most of the cases
         'arxiv.org' : 30,              # Curated repository
         'hdl.handle.net': 20,          # Institutional repositories
-        'citeseerx.ist.psu.edu': 10,   # Preprints crawled on the web
+        'citeseerx.ist.psu.edu': 15,   # Preprints crawled on the web
+        'osti.gov': 10,                # Good but Citation bot converts it to useless parameter without OA info.
         'pdfs.semanticscholar.org': 5, # Vanishes often.
 }
 # Academia.edu and ResearchGate are not ranked here, they are at an equal (lowest) priority
