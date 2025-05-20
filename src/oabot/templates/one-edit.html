@@ -1,11 +1,11 @@
 <!doctype html>
 {% macro circle_color(policy) -%}
     {% if policy == 'can' %}
-        <div class="circle circle-green"></div> Allowed
+        <div class="circle circle-green"></div> Yes
     {% elif policy == 'restricted' %}
-        <div class="circle circle-orange"></div> Restricted
+        <div class="circle circle-orange"></div> Maybe
     {% elif policy == 'cannot' %}
-        <div class="circle circle-red"></div> Forbidden
+        <div class="circle circle-red"></div> No
     {% else %}
         <div class="circle"></div> Unknown
     {% endif %}
@@ -44,9 +44,9 @@
         <div>
          <ol>
           <li>Is the original citation closed access (or lacking any link)?</li>
-          <li>Is the new link free to read?</li>
-          <li>Do the two sources match?</li>
-          <li>Is the new link likely <a href="https://meta.wikimedia.org/wiki/The_Wikipedia_Library/OAWiki/Copyright_and_OA" target="_blank">copyright-compliant</a>?</li>
+          <li>Is the new target free to read?</li>
+          <li>Does the new target match the citation?</li>
+          <li>Do you know or suspect the new target <a href="https://en.wikipedia.org/wiki/Wikipedia:OABOT#What%27s_the_copyright_status_of_the_proposed_links%3F" target="_blank">infringes copyright</a>?</li>
          </ol>
         </div>
  
@@ -57,7 +57,7 @@
 
         {% if 'policy' in proposed_edit %}
         <div class="sherparomeo" style="float: right;">
-            <b>Copyright guidance</b><br>
+            <b>Publisher information</b><br>
             <div class="sherparomeonote">Does this publication support such deposits?</div>
             Preprint: {{ circle_color( proposed_edit.policy.preprint ) }}<br>
             Postprint: {{ circle_color( proposed_edit.policy.postprint ) }}<br>
@@ -73,7 +73,11 @@
         <div class="wiki">{{ proposed_edit.orig_string|wikirender }}</div>
         <p>
             <input type="hidden" name="{{ proposed_edit.orig_hash }}-addlink" value="checked"  />
-            <span class="addlink">Proposed link: <a href="{{ proposed_edit.proposed_link }}" target="_blank">{{ proposed_edit.proposed_link }}</a></span></p>
+        {% if proposed_edit.proposed_link %}
+            <span class="addlink">Proposed link: <a href="{{ proposed_edit.proposed_link }}" target="_blank">{{ proposed_edit.proposed_link }}</a></span>
+        {% endif %}
+        </p>
+        <p>Proposed edit: <code>{{ proposed_edit.proposed_change }}</code></p>
         <input type="hidden" size="100" name="{{ proposed_edit.orig_hash }}" value="{{ proposed_edit.proposed_change }}" />
         <div style="clear: both;"></div>
 
@@ -86,7 +90,7 @@
             <input type="button" accesskey="2" onclick="preview()" value="Preview" class="btn btn-default" />
             <input class="btn btn-success" accesskey="3" type="submit" value="Add link" />
         </span>
-         with summary <input class="form-control" style="max-width:500px; display: inline" type="text" size="80" name="summary" value="Added free to read link in citations with [[WP:OABOT|OAbot]] #oabot" /></p>
+         with summary <input class="form-control" style="max-width:500px; display: inline" type="text" size="80" name="summary" value="Open access status updates in citations with [[WP:OABOT|OAbot]] #oabot" /></p>
         </form>
         <script type="text/javascript">
         function preview() {
@@ -109,9 +113,11 @@
         <div id="preview-diff">
         </div>
 
+        {% if proposed_edit.proposed_link %}
         <h3>URL preview</h3>
         <div id="preview-target">
         <iframe width="400" height="300" src="{{ url_for('stream_url') }}?url={{ proposed_edit.proposed_link|urlencode }}"></iframe>
+        {% endif %}
 
         {% else %}
         <p>No edit proposed for this page.</p>

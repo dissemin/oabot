@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8  -*-
 """ Script to get OAbot suggestions for all English Wikipedia pages """
 #
@@ -7,6 +7,7 @@
 # Distributed under the terms of the MIT license.
 #
 
+from multiprocessing import Pool, TimeoutError
 import pywikibot
 import sys
 import random
@@ -42,10 +43,18 @@ def prefill_cache(max_pages=5000):
     random.shuffle(sortedpages)
 
     print(("INFO: Will start working on {} pages".format(len(sortedpages))))
-    # FIXME: Doesn't respect max_pages
-    # TODO: Restore multithreading
-    for p in sortedpages:
-        worker(p)
+    # Takes almost 1 GB of RAM. With 20 processes, more than 1 CPU is needed.
+    with Pool(processes=10) as pool:
+        result = pool.map_async(worker, sortedpages, 100)
+        while True:
+            # FIXME: Doesn't respect max_pages
+            sleep(1)
+            try:
+                print(result.get(12000))
+            except TimeoutError:
+                print("WARNING: One chunk timed out")
+            except StopIteration:
+                print("INFO: We run out of results to print")
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:

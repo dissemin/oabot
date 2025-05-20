@@ -1,18 +1,20 @@
 # -*- encoding: utf-8 -*-
 
-
 import re
+from urllib.parse import urlparse
 
 rg_re = re.compile('(https?://www\.researchgate\.net/)(.*)(publication/[0-9]*)_.*/links/[0-9a-f]*.pdf')
 
 # This section defines a priority order on the links retrieved from APIs
 domain_priority = {
-        'doi.org': 50,                # Links to the publisher's version in most of the cases
-        'dx.doi.org': 50,                # Links to the publisher's version in most of the cases
-        'ncbi.nlm.nih.gov': 40, # PubMed or PubMed Central: official version too
-        'arxiv.org' : 30,        # Curated repository
-        'hdl.handle.net': 20,        # Institutional repositories
-        'citeseerx.ist.psu.edu': 10, # Preprints crawled on the web
+        'ncbi.nlm.nih.gov': 50,        # PubMed or PubMed Central: official version too, preferred for links.
+        'doi.org': 40,                 # Links to the publisher's version in most of the cases
+        'dx.doi.org': 40,              # Links to the publisher's version in most of the cases
+        'arxiv.org' : 30,              # Curated repository
+        'hdl.handle.net': 20,          # Institutional repositories
+        'citeseerx.ist.psu.edu': 15,   # Preprints crawled on the web
+        'osti.gov': 10,                # Good but Citation bot converts it to useless parameter without OA info.
+        'pdfs.semanticscholar.org': 5, # Vanishes often.
 }
 # Academia.edu and ResearchGate are not ranked here, they are at an equal (lowest) priority
 domain_blacklist = [
@@ -49,7 +51,7 @@ domain_blacklist = [
     'erudit.org',
     'euppublishing.com',
     'fasebj.com',
-    'futuremedicine.com',
+    'futuremedicFine.com',
     'healio.com',
     'healthaffairs.org',
     'informs.org',
@@ -116,6 +118,19 @@ keyword_blacklist = [
     'hdl.handle.net/10068',
 ]
 
+# Domains which never require subscription in [[w:en:WP:URLACCESS]] sense
+domains_no_subscription = [
+    'academia.edu',
+    'adsabs.harvard.edu',
+    'archive.org',
+    'biodiversitylibrary.org',
+    'nih.gov',
+    'persee.fr',
+    'researchgate.net',
+    'semanticscholar.org',
+    'zenodo.org',
+]
+
 domain_re = re.compile(r'\s*(https?|ftp)://(([a-zA-Z0-9-_]+\.)+[a-zA-Z]+)(:[0-9]+)?/?')
 def extract_domain(url):
     match = domain_re.match(url)
@@ -137,5 +152,12 @@ def is_blacklisted(url):
     subdomain = extract_domain(url)
     for domain in domain_blacklist:
         if domain in subdomain:
+            return True
+    return False
+
+def is_no_subscription(url):
+    url_domain = urlparse(url).netloc
+    for domain in domains_no_subscription:
+        if domain in url_domain:
             return True
     return False
