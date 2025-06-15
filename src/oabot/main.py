@@ -21,7 +21,6 @@ from .ondiskcache import OnDiskCache
 from .classifier import AcademicPaperFilter
 import hashlib
 from time import sleep
-#from Levenshtein import ratio
 
 urls_cache = OnDiskCache('urls_cache.pkl')
 paper_filter = AcademicPaperFilter()
@@ -66,7 +65,7 @@ class TemplateEdit(object):
             'issn': self.issn,
         }
 
-    def propose_change(self, only_doi=False):
+    def propose_change(self, only_doi=True):
         """
         Fetches open urls for that template and proposes a change
         """
@@ -111,15 +110,13 @@ class TemplateEdit(object):
             ['yes','y','true']):
             self.classification = 'registration_subscription'
 
-        if only_doi:
-            dissemin_paper_object = {}
-        else:
-            dissemin_paper_object = get_dissemin_paper(reference)
-
-        # Otherwise, try to get a free link
+        # Set paper_object to be empty; we no longer have a source for it
+        # since Dissemin closed.
+        paper_object = {}
+        # Try to get a free link
         doi = reference.get('ID_list', {}).get('DOI')
         try:
-            link, oa_status = get_oa_link(paper=dissemin_paper_object, doi=doi, only_unpaywall=only_doi)
+            link, oa_status = get_oa_link(paper=paper_object, doi=doi, only_unpaywall=only_doi)
         except requests.exceptions.RequestException:
             sleep(60)
             return
@@ -131,10 +128,6 @@ class TemplateEdit(object):
                 self.proposed_change = "doi-access=free|"
                 self.proposed_link = "https://doi.org/{}".format(doi)
 
-            # TODO add the DOI suggested by Dissemin if missing. Needs some checks.
-            # elif dissemin_paper_object.get('pdf_url') and 'doi.org' in dissemin_paper_object.get('pdf_url'):
-            #    self.proposed_change = dissemin_paper_object.get('pdf_url')
-            #    return
         # Continue either way as we may want to add hdl, pmc
 
         if not link:
@@ -174,9 +167,8 @@ class TemplateEdit(object):
                         
                 elif oa_status == "unknown":
                     # We queried Dissemin on top of Unpaywall and no result
+                    # TODO: We should never get here since Dissemin was removed.
                     self.classification = 'subscription_ignored'
-                    # TODO: Find out how to avoid cosmetic-only edits.
-                    # self.proposed_change += "url-access=<!--WP:URLACCESS-->|"
             else:
                 # Nothing to see? Publisher URLs may need correction.
                 pass
@@ -186,11 +178,6 @@ class TemplateEdit(object):
         self.proposed_link = link
         # If the parameter is not present yet, add it
         self.classification = 'link_added'
-
-        if dissemin_paper_object:
-            self.proposed_link_policy = get_paper_values(dissemin_paper_object, 'policy')
-            # TODO: fetch from Unpaywall?
-            self.issn = get_paper_values(dissemin_paper_object, 'issn')
 
         # Try to match it with an argument
         argument_found = False
@@ -207,11 +194,6 @@ class TemplateEdit(object):
             if current_value:
                 # TODO: Unused variable?
                 change['new_'+argmap.name] = (match,link)
-
-                #if argmap.custom_access:
-                #    stats['changed'] += 1
-                #    template.add(argmap.custom_access, 'free')
-                #else:
 
                 self.classification = 'already_present'
                 if argmap.name == 'hdl':
@@ -296,56 +278,6 @@ class TemplateEdit(object):
 def remove_diacritics(s):
     return unidecode(s) if type(s) == str else s
 
-def get_dissemin_paper(reference):
-    """
-    Given a citation template (as parsed by wikiciteparser and a proposed link)
-    get dissemin API information for that link
-    """
-    doi = reference.get('ID_list', {}).get('DOI')
-    title = reference.get('Title', '')
-    authors = reference.get('Authors', [])
-    date = reference.get('Date', '')
-
-    # CS1 represents unparsed authors as {'last':'First Last'}
-    for i in range(len(authors)):
-        if 'first' not in authors[i]:
-            authors[i] = {'plain':authors[i].get('last','')}
-
-    args = {
-        'title':title,
-        'authors':authors,
-        'date':date,
-        'doi':doi,
-        }
-
-    for retry in range(5):
-        try:
-            req = requests.post('https://dissem.in/api/query/',
-                                json=args,
-                                headers={'User-Agent':OABOT_USER_AGENT},
-                                timeout=10)
-
-            resp = req.json()
-            paper_object = resp.get('paper', {})
-            if not paper_object:
-                return {}
-
-            paper_year = paper_object.get("date", "")[:4]
-            paper_authorlast = paper_object.get("authors")[0].get("name", {}).get("last", "")
-            if date[:4] == paper_year and ratio(authors[0].get("last", ""), paper_authorlast) > 0.75:
-                return paper_object
-            else:
-                # Fails a basic author/date check, ignore Dissemin record
-                return {}
-        except (ValueError, requests.exceptions.RequestException) as e:
-            sleep(5)
-            continue
-        except IndexError:
-            # The author names are not what expected, give up on a record match
-            # TODO: could probably try harder
-            return {}
-    return {}
-
 def get_paper_values(paper, attribute):
 
     for record in paper.get('records',[]):
@@ -361,20 +293,10 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
         if doi is not None:
             doi = "/".join(doi.split("/")[-2:])
 
-    dissemin_dois = set([ record.get('doi') for record in
-                         paper.get('records',[]) if record.get('doi')  ])
-    if len(dissemin_dois) > 2:
-        # Do not use Dissemin suggestions: many DOIs suggest a risk of overmerged
-        # records. https://github.com/dissemin/dissemin/issues/512
-        candidate_urls = []
-    else:
-        # Get all the URLs which Dissemin considers to be full-text links
-        candidate_urls = ([
-            record.get('pdf_url') for record in
-            paper.get('records',[])  if record.get('pdf_url')
-        ])
+    # We no longer call Dissemin
+    candidate_urls = []
 
-    # Then, try OAdoi/Unpaywall
+    # Try OAdoi/Unpaywall, if we have a DOI
     # (It finds full texts that Dissemin does not, so it's always good to have!)
     oa_status = None
     if doi:
@@ -405,7 +327,7 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
         boa = resp.get('best_oa_location', None)
         if boa and boa['host_type'] == 'publisher':
             # If we're coming from the DOI rather add doi-access=free
-            # Avoid getting publisher URLs from Unpaywall or Dissemin
+            # Avoid getting publisher URLs from Unpaywall or elsewhere
             if len(resp.get('oa_locations', [])) <= 1:
                 return False, oa_status
 
@@ -421,15 +343,12 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
             if 'citeseerx.ist.psu.edu' in landing_page:
                 candidate_urls.append(landing_page.replace("/summary", "/download"))
         # T354472: Reduce chances of incorrect title matches on PMC
+        # FIXME: Unpaywall removed the evidence field in 2025
             if (landing_page.startswith("https://europepmc.org") or landing_page.startswith("https://www.ncbi.nlm.nih.gov/pmc/")) and oa_location.get("evidence") == "oa repository (via OAI-PMH title and first author match)" and int(resp.get("year", 2000)) < 2000:
                 continue
 
             if oa_location.get('url') and oa_location.get('host_type') != 'publisher':
                 candidate_urls.append(oa_location['url'])
-
-    # TODO If Dissemin considers this gold OA, it only needs a doi-access=free
-    #if paper.get('classification', 'UNK') == 'OA':
-    #    return False
 
     # Full text detection is not always accurate, so we try to pick
     # the URL which is most useful for citation templates and we
@@ -453,7 +372,8 @@ def get_oa_link(paper, doi=None, only_unpaywall=True):
 
     if oa_status:
         return None, oa_status
-        
+
+    # TODO: We should never get here with Unpaywall.
     return None, "unknown"
 
 def add_oa_links_in_references(text, page, only_doi=False):

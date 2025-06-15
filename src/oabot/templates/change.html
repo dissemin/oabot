@@ -1,15 +1,4 @@
 <!doctype html>
-{% macro circle_color(policy) -%}
-    {% if policy == 'can' %}
-        <div class="circle circle-green"></div> Yes
-    {% elif policy == 'restricted' %}
-        <div class="circle circle-orange"></div> Maybe
-    {% elif policy == 'cannot' %}
-        <div class="circle circle-red"></div> No
-    {% else %}
-        <div class="circle"></div> Unknown
-    {% endif %}
-{%- endmacro %}
 <html>
     <head>
         <title> OAbot: {{ page_name }}</title>
@@ -57,20 +46,6 @@
         <ol>
 
         {%  for template_edit in proposed_edits %}
-            {% if 'policy' in template_edit %}
-           <div class="sherparomeo" style="float: right;"> 
-                <b>Publisher information</b>
-                <div class="sherparomeonote">Does this publication support such deposits?</div>
-                Preprint: {{ circle_color( template_edit.policy.preprint ) }}<br>
-                Postprint: {{ circle_color( template_edit.policy.postprint ) }}<br>
-                Published: {{ circle_color( template_edit.policy.published ) }}<br>
-                <div class="sherparomeonote sherparomeolink">Data from Sherpa/Romeo. 
-                    {% if 'issn' in template_edit %}
-                        <a href="http://www.sherpa.ac.uk/romeo/search.php?issn={{ template_edit.issn }}">Full details.</a>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
             <li id="{{ template_edit.index +1 }}">
             <div class="wiki">{{ template_edit.orig_string|wikirender }}</div>
             <p>
@@ -128,7 +103,7 @@
 
         <p><a href="{{ url_for('index') }}">&#8592; Home</a></p>
         
-        <p><center>Logo CC BY SA Doug Dworkin</center></p>
+        <p><center>Logo CC BY-SA Doug Dworkin</center></p>
     </body>
 </html>
 

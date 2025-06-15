@@ -4,7 +4,7 @@ Wikipedia OAbot [![Build Status](https://travis-ci.org/dissemin/oabot.svg?branch
 This tool looks for [open access](https://en.wikipedia.org/wiki/Open_access) versions
 of [references in Wikipedia articles](https://en.wikipedia.org/wiki/Wikipedia:Citing_sources). (For now only the English Wikipedia.)
 
-It relies on the [Dissemin](http://dissem.in) [API](http://dev.dissem.in/api.html) and [Unpaywall](https://unpaywall.org).
+It relies on the [Unpaywall](https://unpaywall.org) API (and it used to use [Dissemin](http://dev.dissem.in/api.html) before [it closed in 2025](https://association.dissem.in/dissemin-closure.html)).
 
 [Start editing citations](https://tools.wmflabs.org/oabot/)
 -----------------------------------------------------
