@@ -59,6 +59,12 @@ class TemplateEditTests(unittest.TestCase):
         """)
         self.assertEqual("hdl-access=free|", edit.proposed_change)
 
+    def test_existing_hdl_access(self):
+        edit = self.propose_change("""
+{{Cite journal |last1=Lerfall |first1=Jørgen |last2=Bendiksen |first2=Eldar Åsgard |last3=Olsen |first3=Jan Vidar |last4=Morrice |first4=David |last5=Østerlie |first5=Marianne |date=2016-01-20 |title=A comparative study of organic- versus conventional farmed Atlantic salmon. I. Pigment and lipid content and composition, and carotenoid stability in ice-stored fillets |journal=Aquaculture |volume=451 |pages=170–177 |doi=10.1016/j.aquaculture.2015.09.013 |hdl=11250/2473880|hdl-access=free }}
+        """)
+        self.assertNotEqual("hdl-access=free|", edit.proposed_change)
+
     # Do not add URL redundant with existing DOI even if doi-access missing
     def test_existing_oadoi(self):
         edit = self.propose_change("""

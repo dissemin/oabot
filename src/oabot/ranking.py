@@ -130,6 +130,7 @@ domains_no_subscription = [
     'eudml.org',
     'nih.gov',
     'persee.fr',
+    'repository.si.edu',
     'researchgate.net',
     'semanticscholar.org',
     'zenodo.org',

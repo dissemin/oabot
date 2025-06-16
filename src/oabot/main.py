@@ -196,7 +196,7 @@ class TemplateEdit(object):
                 change['new_'+argmap.name] = (match,link)
 
                 self.classification = 'already_present'
-                if argmap.name == 'hdl':
+                if argmap.name == 'hdl' and not self.template.has('hdl-access'):
                     self.proposed_change += "hdl-access=free|"
                     # don't change anything else
                     # TODO: Consider still adding PMC if available
